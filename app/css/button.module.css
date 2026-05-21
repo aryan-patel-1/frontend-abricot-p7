@@ -1,0 +1,25 @@
+.button {
+  align-items: center;
+  background: #1f1f1f;
+  border: 0;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 400;
+  height: 50px;
+  justify-content: center;
+  line-height: 1;
+  padding: 0 28px;
+  transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.button:hover {
+  background: #111111;
+}
+
+.button:active {
+  transform: translateY(1px);
+}

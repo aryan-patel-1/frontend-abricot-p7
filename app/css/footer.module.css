@@ -1,0 +1,23 @@
+.footer {
+  align-items: center;
+  background: #ffffff;
+  display: flex;
+  flex: 0 0 68px;
+  height: 68px;
+  justify-content: space-between;
+  padding: 0 55px 0 30px;
+  width: 100%;
+}
+
+.logo {
+  display: block;
+  height: auto;
+  width: 102px;
+}
+
+.text {
+  color: #111111;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1;
+}

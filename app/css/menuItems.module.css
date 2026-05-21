@@ -1,0 +1,83 @@
+.item {
+  align-items: center;
+  border-radius: 8px;
+  color: #d3590b;
+  display: inline-flex;
+  font-size: 16px;
+  font-weight: 400;
+  gap: 18px;
+  min-height: 78px;
+  line-height: 1;
+  padding: 0 42px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.item:hover {
+  color: #a94308;
+}
+
+.active {
+  background: #111111;
+  color: #ffffff;
+}
+
+.active:hover {
+  color: #ffffff;
+}
+
+.icon {
+  color: currentColor;
+  display: inline-block;
+  flex: 0 0 auto;
+  height: 24px;
+  position: relative;
+  width: 24px;
+}
+
+.dashboardIcon {
+  display: grid;
+  gap: 4px;
+  grid-template-columns: repeat(2, 10px);
+  grid-template-rows: repeat(2, 10px);
+}
+
+.dashboardIcon span {
+  background: currentColor;
+  border-radius: 2px;
+  display: block;
+}
+
+.projectsIcon {
+  background: currentColor;
+  border-radius: 2px 2px 3px 3px;
+  height: 17px;
+  margin-top: 6px;
+  width: 28px;
+}
+
+.projectsIcon::before {
+  background: currentColor;
+  border-radius: 2px 2px 0 0;
+  content: "";
+  height: 7px;
+  left: 0;
+  position: absolute;
+  top: -5px;
+  width: 13px;
+}
+
+.projectsIcon::after {
+  background: currentColor;
+  border-radius: 2px 2px 0 0;
+  content: "";
+  height: 5px;
+  left: 8px;
+  position: absolute;
+  top: -3px;
+  width: 20px;
+}
+
+.projectsIcon span {
+  display: none;
+}

@@ -1,0 +1,12 @@
+.link {
+  color: #d3590b;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.2;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.link:hover {
+  color: #a94308;
+}
