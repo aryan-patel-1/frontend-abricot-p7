@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-import styles from "../css/userIcon.module.css";
-
 type UserIconProps = {
   initials?: string;
 };
@@ -9,7 +7,11 @@ type UserIconProps = {
 export default function UserIcon({ initials = "AD" }: UserIconProps) {
   return (
     // affiche les initiales
-    <Link className={styles.userIcon} href="/account" aria-label="profil utilisateur">
+    <Link
+      className="inline-flex h-[65px] w-[65px] items-center justify-center rounded-full bg-[#fde3d3] text-sm font-normal leading-none text-[#111111] no-underline hover:bg-[#f8d4bd]"
+      href="/main/account"
+      aria-label="profil utilisateur"
+    >
       {initials}
     </Link>
   );

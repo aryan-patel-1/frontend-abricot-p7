@@ -1,7 +1,5 @@
 import type { ButtonHTMLAttributes } from "react";
 
-import styles from "../css/button.module.css";
-
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 export default function Button({
@@ -11,7 +9,10 @@ export default function Button({
 }: ButtonProps) {
   return (
     // affiche un bouton
-    <button className={`${styles.button} ${className}`} {...props}>
+    <button
+      className={`inline-flex h-[50px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[#1f1f1f] px-7 text-base font-normal leading-none text-white transition-[background-color,transform] duration-150 hover:bg-[#111111] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-[0.68] disabled:active:translate-y-0 ${className}`}
+      {...props}
+    >
       {children}
     </button>
   );

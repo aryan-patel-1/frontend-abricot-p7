@@ -1,19 +1,19 @@
 import Image from "next/image";
 
-import styles from "../css/footer.module.css";
-
 export default function Footer() {
   return (
     // affiche le bas de page
-    <footer className={styles.footer}>
+    <footer className="flex h-[68px] w-full flex-none items-center justify-between bg-white py-0 pl-[30px] pr-[55px] max-sm:px-6">
       <Image
         src="/img/logo-noir.svg"
         alt="Abricot"
         width={253}
         height={33}
-        className={styles.logo}
+        className="block h-auto w-[102px]"
       />
-      <span className={styles.text}>Abricot 2025</span>
+      <span className="text-base font-normal leading-none text-[#111111]">
+        Abricot 2025
+      </span>
     </footer>
   );
 }

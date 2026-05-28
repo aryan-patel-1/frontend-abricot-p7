@@ -1,7 +1,5 @@
 import Image from "next/image";
 
-import styles from "../css/logo.module.css";
-
 type LogoProps = {
   className?: string;
 };
@@ -14,7 +12,7 @@ export default function Logo({ className = "" }: LogoProps) {
       alt="Abricot"
       width={253}
       height={33}
-      className={`${styles.logo} ${className}`}
+      className={`block h-auto w-[253px] ${className}`}
       priority
     />
   );
