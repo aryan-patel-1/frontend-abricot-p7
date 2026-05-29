@@ -28,7 +28,11 @@ export default function RegisterPage() {
 
     try {
       // crée le compte avec les champs du formulaire
-      const session = await register({ email, name, password });
+      const session = await register({
+        email: email.trim(),
+        name: name.trim() || undefined,
+        password,
+      });
       // sauvegarde la session reçue avant de changer de page
       saveAuthSession(session);
       router.push("/main/dashboard");
@@ -85,7 +89,11 @@ export default function RegisterPage() {
               minLength={8}
               name="password"
               onChange={(event) => setPassword(event.target.value)}
+              pattern={
+                "(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"
+              }
               required
+              title="Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&)."
               type="password"
               value={password}
             />

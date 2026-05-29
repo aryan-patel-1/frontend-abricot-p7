@@ -5,20 +5,62 @@ export type ApiResponse<T> = {
   error?: string;
 };
 
+export type ApiValidationError = {
+  field: string;
+  message: string;
+};
+
+type ApiErrorData = {
+  errors?: ApiValidationError[];
+};
+
 export class ApiError extends Error {
   status: number;
   code?: string;
+  validationErrors: ApiValidationError[];
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(
+    message: string,
+    status: number,
+    code?: string,
+    validationErrors: ApiValidationError[] = []
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
+    this.validationErrors = validationErrors;
   }
 }
 
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "/api";
+
+function getValidationErrors(payload: ApiResponse<unknown>) {
+  const data = payload.data as ApiErrorData | undefined;
+
+  if (!Array.isArray(data?.errors)) {
+    return [];
+  }
+
+  return data.errors.filter(
+    (error): error is ApiValidationError =>
+      typeof error?.field === "string" && typeof error?.message === "string"
+  );
+}
+
+function getErrorMessage(
+  payload: ApiResponse<unknown>,
+  fallback: string,
+  validationErrors: ApiValidationError[]
+) {
+  const validationMessage = validationErrors
+    .map((error) => error.message.trim())
+    .filter(Boolean)
+    .join(" ");
+
+  return validationMessage || payload.message || fallback;
+}
 
 // centralise les appels http vers l'api
 export async function apiRequest<T>(
@@ -59,11 +101,14 @@ export async function apiRequest<T>(
   }
 
   if (!response.ok || !payload.success) {
+    const validationErrors = getValidationErrors(payload);
+
     // conserve le message métier envoyé par l'api
     throw new ApiError(
-      payload.message || "Une erreur est survenue.",
+      getErrorMessage(payload, "Une erreur est survenue.", validationErrors),
       response.status,
-      payload.error
+      payload.error,
+      validationErrors
     );
   }
 
