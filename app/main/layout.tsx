@@ -12,9 +12,9 @@ type MainLayoutProps = {
 
 function getLayout(children: ReactNode, pathname: string) {
   return (
-    <div className="flex min-h-dvh flex-1 flex-col bg-[#f9fafb]">
+    <div className="flex min-h-dvh flex-1 flex-col bg-[var(--color-surface-main)]">
       <Menu pathname={pathname} />
-      <main className="flex-1 bg-[#f9fafb]">{children}</main>
+      <main className="flex-1 bg-[var(--color-surface-main)]">{children}</main>
       <Footer />
     </div>
   );

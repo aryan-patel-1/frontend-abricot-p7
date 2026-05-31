@@ -15,7 +15,7 @@ export default function AppLink({
   return (
     // affiche un lien
     <NextLink
-      className={`text-sm font-normal leading-[1.2] text-[#d3590b] underline underline-offset-2 hover:text-[#a94308] ${className}`}
+      className={`text-sm font-normal leading-[1.2] text-[var(--color-brand)] underline underline-offset-2 hover:text-[var(--color-brand-hover)] ${className}`}
       href={href}
       {...props}
     >

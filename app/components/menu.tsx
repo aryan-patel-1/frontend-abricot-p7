@@ -11,7 +11,7 @@ type MenuProps = {
 export default function Menu({ pathname }: MenuProps) {
   return (
     // affiche le menu du haut
-    <header className="grid h-[94px] w-full flex-none grid-cols-[1fr_auto_1fr] items-center bg-white pl-[113px] pr-[86px] shadow-[0_4px_14px_rgba(0,0,0,0.14)] max-[900px]:h-auto max-[900px]:min-h-[94px] max-[900px]:grid-cols-[1fr_auto] max-[900px]:gap-6 max-[900px]:px-6 max-[900px]:py-[18px]">
+    <header className="grid h-[94px] w-full flex-none grid-cols-[1fr_auto_1fr] items-center bg-white pl-[113px] pr-[86px] shadow-[var(--shadow-menu)] max-[900px]:h-auto max-[900px]:min-h-[94px] max-[900px]:grid-cols-[1fr_auto] max-[900px]:gap-6 max-[900px]:px-6 max-[900px]:py-[18px]">
       <Link
         className="inline-flex items-center justify-self-start"
         href="/main/dashboard"
@@ -23,7 +23,7 @@ export default function Menu({ pathname }: MenuProps) {
           width={253}
           height={33}
           className="block h-auto w-[146px]"
-          priority
+          preload
         />
       </Link>
 

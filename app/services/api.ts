@@ -1,3 +1,4 @@
+// forme standard renvoyée par le backend express
 export type ApiResponse<T> = {
   success: boolean;
   message: string;
@@ -5,6 +6,7 @@ export type ApiResponse<T> = {
   error?: string;
 };
 
+// erreur liée à un champ précis d'un formulaire
 export type ApiValidationError = {
   field: string;
   message: string;
@@ -14,6 +16,7 @@ type ApiErrorData = {
   errors?: ApiValidationError[];
 };
 
+// erreur personnalisée pour garder les détails utiles côté frontend
 export class ApiError extends Error {
   status: number;
   code?: string;
@@ -33,22 +36,42 @@ export class ApiError extends Error {
   }
 }
 
+// enlève le slash final pour éviter une url du type /api//auth/login
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "") ?? "/api";
 
-function getValidationErrors(payload: ApiResponse<unknown>) {
-  const data = payload.data as ApiErrorData | undefined;
+// récupère le token sauvegardé après la connexion
+function getAuthHeaders(): Record<string, string> {
+  if (typeof window === "undefined") {
+    return {};
+  }
 
-  if (!Array.isArray(data?.errors)) {
+  const token = localStorage.getItem("abricot_token");
+
+  if (!token) {
+    return {};
+  }
+
+  return {
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+// récupère les erreurs de validation envoyées par le backend
+function getValidationErrors(payload: ApiResponse<unknown>) {
+  const errorData = payload.data as ApiErrorData | undefined;
+
+  if (!Array.isArray(errorData?.errors)) {
     return [];
   }
 
-  return data.errors.filter(
+  return errorData.errors.filter(
     (error): error is ApiValidationError =>
       typeof error?.field === "string" && typeof error?.message === "string"
   );
 }
 
+// choisit le message le plus clair à afficher à l'utilisateur
 function getErrorMessage(
   payload: ApiResponse<unknown>,
   fallback: string,
@@ -62,21 +85,26 @@ function getErrorMessage(
   return validationMessage || payload.message || fallback;
 }
 
-// centralise les appels http vers l'api
+// centralise les appels http vers l'api et renvoie seulement les données utiles
 export async function apiRequest<T>(
   path: string,
   init: RequestInit = {}
 ): Promise<T> {
   let response: Response;
+  const requestUrl = `${API_BASE_URL}${path}`;
+  const headers = new Headers(init.headers);
+
+  headers.set("Content-Type", "application/json");
+
+  for (const [name, value] of Object.entries(getAuthHeaders())) {
+    headers.set(name, value);
+  }
 
   try {
-    // envoie la requête avec un corps json par défaut
-    response = await fetch(`${API_BASE_URL}${path}`, {
+    // envoie la requête au backend avec un corps json par défaut
+    response = await fetch(requestUrl, {
       ...init,
-      headers: {
-        "Content-Type": "application/json",
-        ...init.headers,
-      },
+      headers,
     });
   } catch {
     // transforme les erreurs réseau en message affichable par l'interface
@@ -102,10 +130,15 @@ export async function apiRequest<T>(
 
   if (!response.ok || !payload.success) {
     const validationErrors = getValidationErrors(payload);
+    const errorMessage = getErrorMessage(
+      payload,
+      "Une erreur est survenue.",
+      validationErrors
+    );
 
-    // conserve le message métier envoyé par l'api
+    // garde le message métier et le statut http pour la page qui appelle l'api
     throw new ApiError(
-      getErrorMessage(payload, "Une erreur est survenue.", validationErrors),
+      errorMessage,
       response.status,
       payload.error,
       validationErrors

@@ -13,7 +13,7 @@ export default function Logo({ className = "" }: LogoProps) {
       width={253}
       height={33}
       className={`block h-auto w-[253px] ${className}`}
-      priority
+      preload
     />
   );
 }

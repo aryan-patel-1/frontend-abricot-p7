@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 type MenuItemsProps = {
@@ -7,6 +8,42 @@ type MenuItemsProps = {
   label: string;
 };
 
+type MenuItemIconProps = {
+  active?: boolean;
+  className?: string;
+  icon: MenuItemsProps["icon"];
+};
+
+export function MenuItemIcon({
+  active = false,
+  className = "",
+  icon,
+}: MenuItemIconProps) {
+  const iconSrc =
+    icon === "dashboard"
+      ? active
+        ? "/img/menu-tableau-blanc.svg"
+        : "/img/menu-tableau-orange.svg"
+      : active
+        ? "/img/menu-projet-blanc.svg"
+        : "/img/menu-projet-orange.svg";
+  const iconWidth = icon === "dashboard" ? 24 : 29;
+  const iconHeight = icon === "dashboard" ? 24 : 23;
+  const baseClass = icon === "dashboard" ? "h-6 w-6" : "h-[23px] w-[29px]";
+  const imageClass = className || baseClass;
+
+  return (
+    <Image
+      src={iconSrc}
+      alt=""
+      width={iconWidth}
+      height={iconHeight}
+      aria-hidden="true"
+      className={`block flex-none ${imageClass}`}
+    />
+  );
+}
+
 export default function MenuItems({
   active = false,
   href,
@@ -14,35 +51,8 @@ export default function MenuItems({
   label,
 }: MenuItemsProps) {
   const itemClass = active
-    ? "bg-[#111111] text-white hover:text-white"
-    : "text-[#d3590b] hover:text-[#a94308]";
-
-  function renderIcon() {
-    if (icon === "dashboard") {
-      return (
-        <span
-          className="grid h-6 w-6 flex-none grid-cols-[repeat(2,10px)] grid-rows-[repeat(2,10px)] gap-1 text-current"
-          aria-hidden="true"
-        >
-          <span className="block rounded-[2px] bg-current" />
-          <span className="block rounded-[2px] bg-current" />
-          <span className="block rounded-[2px] bg-current" />
-          <span className="block rounded-[2px] bg-current" />
-        </span>
-      );
-    }
-
-    return (
-      <span
-        className="relative h-6 w-7 flex-none text-current"
-        aria-hidden="true"
-      >
-        <span className="absolute left-0 top-px h-[7px] w-[13px] rounded-t-[2px] bg-current" />
-        <span className="absolute left-2 top-[3px] h-[5px] w-5 rounded-t-[2px] bg-current" />
-        <span className="absolute left-0 top-[6px] h-[17px] w-7 rounded-t-[2px] rounded-b-[3px] bg-current" />
-      </span>
-    );
-  }
+    ? "bg-[var(--color-ink)] text-white hover:text-white"
+    : "text-[var(--color-brand)] hover:text-[var(--color-brand-hover)]";
 
   return (
     // affiche un lien du menu
@@ -50,7 +60,7 @@ export default function MenuItems({
       className={`inline-flex min-h-[78px] items-center gap-[18px] whitespace-nowrap rounded-lg px-[42px] text-base font-normal leading-none no-underline ${itemClass}`}
       href={href}
     >
-      {renderIcon()}
+      <MenuItemIcon active={active} icon={icon} />
       <span>{label}</span>
     </Link>
   );

@@ -42,3 +42,22 @@ export function saveAuthSession(session: AuthSession) {
   localStorage.setItem("abricot_token", session.token);
   localStorage.setItem("abricot_user", JSON.stringify(session.user));
 }
+
+// relit l'utilisateur sauvegardé après la connexion
+export function getSavedAuthUser() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const savedUser = localStorage.getItem("abricot_user");
+
+  if (!savedUser) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(savedUser) as AuthUser;
+  } catch {
+    return null;
+  }
+}

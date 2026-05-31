@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import type { FormEvent } from "react";
+import type { SyntheticEvent } from "react";
 import { useState } from "react";
 
 import Button from "../components/button";
@@ -20,7 +20,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     // empêche le navigateur de recharger la page
     event.preventDefault();
     setError("");
@@ -49,15 +49,15 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="flex min-h-dvh w-full bg-[#f7f7f7] font-[Ag,Arial,Helvetica,sans-serif] text-[#111111] max-[900px]:block">
+    <main className="flex min-h-dvh w-full bg-[var(--color-surface-auth)] font-[Ag,Arial,Helvetica,sans-serif] text-[var(--color-ink)] max-[900px]:block">
       <section
-        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[#f7f7f7] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6"
+        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[var(--color-surface-auth)] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6"
         aria-label="Formulaire d'inscription"
       >
         <Logo className="mt-[113px] max-[480px]:mt-14 max-[480px]:w-[min(253px,78vw)]" />
 
         <div className="mt-[170px] flex w-[282px] flex-col items-center max-[480px]:mt-[140px] max-[480px]:w-full">
-          <h1 className="mb-[34px] text-[40px] font-bold leading-[1.1] text-[#d3590b]">
+          <h1 className="mb-[34px] text-[40px] font-bold leading-[1.1] text-[var(--color-brand)]">
             Inscription
           </h1>
 
@@ -86,21 +86,16 @@ export default function RegisterPage() {
               autoComplete="new-password"
               id="password"
               label="Mot de passe"
-              minLength={8}
               name="password"
               onChange={(event) => setPassword(event.target.value)}
-              pattern={
-                "(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}"
-              }
               required
-              title="Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial (@$!%*?&)."
               type="password"
               value={password}
             />
 
             {error ? (
               <p
-                className="w-full rounded-md border border-[#ffccc7] bg-[#fff1f0] px-3 py-2.5 text-sm leading-[1.4] text-[#9f1d12]"
+                className="w-full rounded-md border border-[var(--color-error-border)] bg-[var(--color-error-bg)] px-3 py-2.5 text-sm leading-[1.4] text-[var(--color-error-text)]"
                 role="alert"
               >
                 {error}
@@ -117,7 +112,7 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        <p className="absolute bottom-[109px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[#111111] max-[480px]:bottom-12">
+        <p className="absolute bottom-[109px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[var(--color-ink)] max-[480px]:bottom-12">
           Déjà inscrit ?{" "}
           <AppLink className="ml-2" href="/login">
             Se connecter
@@ -133,7 +128,7 @@ export default function RegisterPage() {
           src="/img/signup-img.webp"
           alt=""
           fill
-          priority
+          preload
           sizes="(max-width: 768px) 0px, calc(100vw - 562px)"
           className="object-cover object-center"
         />

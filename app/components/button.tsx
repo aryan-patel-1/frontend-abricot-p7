@@ -10,7 +10,7 @@ export default function Button({
   return (
     // affiche un bouton
     <button
-      className={`inline-flex h-[50px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[#1f1f1f] px-7 text-base font-normal leading-none text-white transition-[background-color,transform] duration-150 hover:bg-[#111111] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-[0.68] disabled:active:translate-y-0 ${className}`}
+      className={`inline-flex h-[50px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[var(--color-action)] px-7 text-base font-normal leading-none text-white transition-[background-color,transform] duration-150 hover:bg-[var(--color-ink)] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-[0.68] disabled:active:translate-y-0 ${className}`}
       {...props}
     >
       {children}

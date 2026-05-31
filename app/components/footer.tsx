@@ -11,7 +11,7 @@ export default function Footer() {
         height={33}
         className="block h-auto w-[102px]"
       />
-      <span className="text-base font-normal leading-none text-[#111111]">
+      <span className="text-base font-normal leading-none text-[var(--color-ink)]">
         Abricot 2025
       </span>
     </footer>
