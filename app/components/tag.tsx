@@ -1,4 +1,4 @@
-export type TagStatus = "todo" | "progress" | "done" | "cancelled";
+export type TagStatus = "todo" | "progress" | "done";
 
 type TagProps = {
   className?: string;
@@ -23,10 +23,6 @@ const tagStyles: Record<
   done: {
     label: "TERMINÉE",
     className: "bg-[var(--color-done-bg)] text-[var(--color-done-text)]",
-  },
-  cancelled: {
-    label: "ANNULÉE",
-    className: "bg-[var(--color-line)] text-[var(--color-muted)]",
   },
 };
 

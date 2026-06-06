@@ -45,7 +45,7 @@ function formatDueDate(dueDate: string | null) {
 }
 
 // affiche les informations secondaires d'une tâche
-function TaskMeta({
+export function TaskMeta({
   commentsCount,
   dueDate,
   projectName,

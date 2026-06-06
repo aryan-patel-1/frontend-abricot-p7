@@ -1,6 +1,8 @@
 import { apiRequest } from "./api";
+import { mockAssignedTasks } from "../mocks/mocksData";
+import { getData } from "./dataProvider";
 
-export type DashboardTaskStatus = "TODO" | "IN_PROGRESS" | "DONE" | "CANCELLED";
+export type DashboardTaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
 
 export type DashboardTask = {
   id: string;
@@ -17,11 +19,13 @@ export type DashboardTask = {
   }[];
 };
 
-type AssignedTasksResponse = {
+export type AssignedTasksResponse = {
   tasks: DashboardTask[];
 };
 
 // récupère les tâches assignées à l'utilisateur connecté
 export function getAssignedTasks() {
-  return apiRequest<AssignedTasksResponse>("/dashboard/assigned-tasks");
+  return getData(mockAssignedTasks, () =>
+    apiRequest<AssignedTasksResponse>("/dashboard/assigned-tasks")
+  );
 }
