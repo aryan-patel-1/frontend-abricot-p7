@@ -1,9 +1,11 @@
+"use client";
+
 import Image from "next/image";
+import { useState } from "react";
 
 import Button from "./button";
 import Comment from "./comment";
-import IconButton from "./iconButton";
-import { InputCalendarIcon } from "./input";
+import { InputCalendarIcon, SearchInput } from "./input";
 import Tag, { type TagStatus } from "./tag";
 
 export type TaskListTask = {
@@ -115,8 +117,23 @@ type ListViewProps = {
   tasks: TaskListTask[];
 };
 
+function matchesSearch(task: TaskListTask, searchText: string) {
+  const normalizedSearch = searchText.trim().toLowerCase();
+
+  if (normalizedSearch.length < 3) {
+    return true;
+  }
+
+  return [task.title, task.description ?? "", task.projectName].some((value) =>
+    value.toLowerCase().includes(normalizedSearch)
+  );
+}
+
 // affiche la section des tâches
 export function ListView({ tasks }: ListViewProps) {
+  const [searchText, setSearchText] = useState("");
+  const filteredTasks = tasks.filter((task) => matchesSearch(task, searchText));
+
   return (
     <section className="mt-[30px] rounded-lg border border-[var(--color-line)] bg-white px-[59px] py-[39px] max-[760px]:px-5">
       <div className="mb-[41px] flex items-center justify-between gap-8 max-[760px]:flex-col max-[760px]:items-start">
@@ -128,17 +145,21 @@ export function ListView({ tasks }: ListViewProps) {
             Par ordre de priorité
           </p>
         </div>
-        <label className="flex h-[63px] w-full max-w-[357px] items-center justify-between rounded-lg border border-[var(--color-line)] bg-white px-[31px] text-[15px] text-[var(--color-muted)]">
-          <span className="sr-only">Rechercher une tâche</span>
-          <input
-            className="min-w-0 flex-1 border-0 bg-transparent p-0 text-[15px] leading-none text-[var(--color-ink)] outline-none placeholder:text-[var(--color-muted)]"
-            placeholder="Rechercher une tâche"
-            readOnly
-          />
-          <IconButton className="h-[14px] w-[14px]" />
-        </label>
+        <SearchInput
+          label="Rechercher une tâche"
+          placeholder="Rechercher une tâche"
+          type="text"
+          value={searchText}
+          onChange={(event) => setSearchText(event.target.value)}
+        />
       </div>
-      <TaskList tasks={tasks} />
+      {filteredTasks.length > 0 ? (
+        <TaskList tasks={filteredTasks} />
+      ) : (
+        <p className="text-[15px] leading-tight text-[var(--color-muted)]">
+          Aucune tâche ne correspond à votre recherche
+        </p>
+      )}
     </section>
   );
 }

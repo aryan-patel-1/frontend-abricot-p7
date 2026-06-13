@@ -1,5 +1,5 @@
 // active les données de test pour utiliser le frontend sans backend
-export const USE_MOCK = false;
+export const USE_MOCK = true;
 
 // centralise le mode de données utilisé par les services
 export function isUsingMockData() {

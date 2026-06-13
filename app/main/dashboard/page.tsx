@@ -226,7 +226,7 @@ function DashboardHeader({
 // affiche une tâche dans une colonne kanban
 function KanbanTaskCard({ task }: { task: TaskListTask }) {
   return (
-    <article className="rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[29px]">
+    <article className="min-h-[229px] rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[30px]">
       <div className="mb-[10px] flex items-start justify-between gap-4">
         <h3 className="text-[18px] font-semibold leading-tight text-[var(--color-ink)]">
           {task.title}
@@ -241,7 +241,7 @@ function KanbanTaskCard({ task }: { task: TaskListTask }) {
         dueDate={task.dueDate}
         projectName={task.projectName}
       />
-      <Button type="button" className="mt-[32px] w-[121px]">
+      <Button type="button" className="mt-[33px] w-[121px]">
         Voir
       </Button>
     </article>
@@ -258,7 +258,7 @@ function KanbanView({ tasks }: { tasks: TaskListTask[] }) {
         return (
           <article
             key={column.status}
-            className="rounded-lg border border-[var(--color-error-border)] bg-white px-6 py-[39px]"
+            className="rounded-lg border border-[var(--color-error-border)] bg-white px-6 py-[43px]"
           >
             <div className="mb-[41px] flex items-center gap-[12px]">
               <h2 className="text-xl font-semibold leading-tight text-[var(--color-heading)]">
