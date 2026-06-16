@@ -91,6 +91,14 @@ export function saveAuthSession(session: AuthSession) {
   localStorage.setItem("abricot_user", JSON.stringify(session.user));
 }
 
+// supprime les informations de session sauvegardées dans le navigateur
+export function logout() {
+  localStorage.removeItem("abricot_token");
+  localStorage.removeItem("abricot_user");
+  lastSavedUserText = null;
+  lastSavedUser = null;
+}
+
 // relit l'utilisateur sauvegardé après la connexion
 export function getSavedAuthUser() {
   if (isUsingMockData()) {

@@ -1,10 +1,11 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
 import Button from "../../components/button";
 import TextInput from "../../components/input";
-import { getSavedAuthUser, type AuthUser } from "../../services/authServices";
+import { getSavedAuthUser, logout, type AuthUser } from "../../services/authServices";
 
 // lit l'utilisateur sauvegardé seulement côté navigateur
 function readSavedUser() {
@@ -37,6 +38,7 @@ function getNameParts(user: AuthUser | null) {
 }
 
 export default function AccountPage() {
+  const router = useRouter();
   const user = useSyncExternalStore(
     watchSavedUserChanges,
     readSavedUser,
@@ -44,6 +46,11 @@ export default function AccountPage() {
   );
   const { firstName, lastName } = getNameParts(user);
   const displayName = user?.name || user?.email || "Utilisateur";
+
+  function handleLogout() {
+    logout();
+    router.push("/login");
+  }
 
   return (
     // affiche les informations du compte connecté
@@ -86,9 +93,18 @@ export default function AccountPage() {
           type="text"
           value="••••••••••••"
         />
-        <Button type="button" className="mt-[17px] w-[242px] max-[480px]:w-full">
-          Modifier les informations
-        </Button>
+        <div className="mt-[17px] flex flex-wrap gap-4">
+          <Button type="button" className="w-[242px] max-[480px]:w-full">
+            Modifier les informations
+          </Button>
+          <Button
+            type="button"
+            className="w-[242px] max-[480px]:w-full"
+            onClick={handleLogout}
+          >
+            Se déconnecter
+          </Button>
+        </div>
       </form>
     </section>
   );

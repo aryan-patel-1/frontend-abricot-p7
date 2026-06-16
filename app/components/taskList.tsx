@@ -118,12 +118,15 @@ type ListViewProps = {
 };
 
 function matchesSearch(task: TaskListTask, searchText: string) {
+  // prépare le texte saisi pour comparer sans tenir compte des majuscules
   const normalizedSearch = searchText.trim().toLowerCase();
 
+  // garde toutes les tâches visibles tant que la recherche est trop courte
   if (normalizedSearch.length < 3) {
     return true;
   }
 
+  // cherche dans les informations principales visibles sur une tâche
   return [task.title, task.description ?? "", task.projectName].some((value) =>
     value.toLowerCase().includes(normalizedSearch)
   );
@@ -131,7 +134,9 @@ function matchesSearch(task: TaskListTask, searchText: string) {
 
 // affiche la section des tâches
 export function ListView({ tasks }: ListViewProps) {
+  // garde en mémoire le texte tapé dans la barre de recherche
   const [searchText, setSearchText] = useState("");
+  // recalcule la liste affichée à chaque changement de recherche
   const filteredTasks = tasks.filter((task) => matchesSearch(task, searchText));
 
   return (

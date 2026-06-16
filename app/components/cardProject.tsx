@@ -1,7 +1,7 @@
-import type { MockProject } from "../mocks/mocksData";
+import type { Project } from "../services/projectServices";
 
 type CardProjectProps = {
-  project: MockProject;
+  project: Project;
 };
 
 function getInitials(name?: string | null) {
@@ -19,17 +19,20 @@ function getInitials(name?: string | null) {
     .toUpperCase();
 }
 
-function getProgress(project: MockProject) {
+function getProgress(project: Project) {
+  const completedTasks = project.completedTasks ?? 0;
+
   // évite une division par zéro quand un projet n'a pas encore de tâche
   if (project._count.tasks === 0) {
     return 0;
   }
 
-  return Math.round((project.completedTasks / project._count.tasks) * 100);
+  return Math.round((completedTasks / project._count.tasks) * 100);
 }
 
 export default function CardProject({ project }: CardProjectProps) {
   const progress = getProgress(project);
+  const completedTasks = project.completedTasks ?? 0;
   // regroupe le propriétaire et les membres pour afficher le total de l'équipe
   const team = [project.owner, ...project.members.map((member) => member.user)];
 
@@ -54,7 +57,7 @@ export default function CardProject({ project }: CardProjectProps) {
           />
         </div>
         <p className="mt-[10px] text-[11px] leading-none text-[var(--color-muted)]">
-          {project.completedTasks}/{project._count.tasks} tâches terminées
+          {completedTasks}/{project._count.tasks} tâches terminées
         </p>
       </div>
 
