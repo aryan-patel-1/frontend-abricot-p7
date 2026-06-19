@@ -54,7 +54,7 @@ export default function AccountPage() {
 
   return (
     // affiche les informations du compte connecté
-    <section className="mx-auto mt-[57px] w-full max-w-[1216px] rounded-lg border border-[var(--color-line)] bg-white px-[58px] py-[42px] max-[760px]:mx-5 max-[760px]:w-auto max-[760px]:px-5">
+    <section className="mx-auto mt-[48px] w-full max-w-[1408px] rounded-lg border border-[var(--color-line)] bg-white px-8 py-[42px] max-[1440px]:mx-4 max-[760px]:mx-5 max-[760px]:w-auto max-[760px]:px-5">
       <div className="mb-[43px]">
         <h1 className="text-xl font-semibold leading-tight text-[var(--color-ink)]">
           Mon compte

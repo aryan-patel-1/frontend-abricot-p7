@@ -1,11 +1,12 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 
-import Button from "./button";
 import Comment from "./comment";
-import { InputCalendarIcon, SearchInput } from "./input";
+import { InputIcon } from "./input";
+import SearchBar from "./searchBar";
 import Tag, { type TagStatus } from "./tag";
 
 export type TaskListTask = {
@@ -64,7 +65,10 @@ export function TaskMeta({
       </span>
       <span className="h-[17px] w-px bg-[var(--color-divider)]" aria-hidden="true" />
       <span className="inline-flex items-center gap-[7px]">
-        <InputCalendarIcon className="h-[17px] w-[15px]" />
+        <InputIcon
+          src="/img/input-icon-calendar.svg"
+          className="h-[17px] w-[15px]"
+        />
         <span>{formatDueDate(dueDate)}</span>
       </span>
       <span className="h-[17px] w-px bg-[var(--color-divider)]" aria-hidden="true" />
@@ -95,9 +99,12 @@ function TaskCard({ task }: { task: TaskListTask }) {
       </div>
       <div className="flex h-full flex-col items-end justify-between gap-6 max-[700px]:h-auto max-[700px]:items-start">
         <Tag status={task.status} />
-        <Button type="button" className="w-[121px]">
+        <Link
+          href="/main/projects/1"
+          className="inline-flex h-[50px] w-[121px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[var(--color-action)] px-7 text-base font-normal leading-none text-white no-underline transition-[background-color,transform] duration-150 hover:bg-[var(--color-ink)] active:translate-y-px"
+        >
           Voir
-        </Button>
+        </Link>
       </div>
     </article>
   );
@@ -150,7 +157,7 @@ export function ListView({ tasks }: ListViewProps) {
             Par ordre de priorité
           </p>
         </div>
-        <SearchInput
+        <SearchBar
           label="Rechercher une tâche"
           placeholder="Rechercher une tâche"
           type="text"

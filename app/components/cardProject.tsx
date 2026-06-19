@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import type { Project } from "../services/projectServices";
 
 type CardProjectProps = {
@@ -37,7 +39,10 @@ export default function CardProject({ project }: CardProjectProps) {
   const team = [project.owner, ...project.members.map((member) => member.user)];
 
   return (
-    <article className="flex min-h-[351px] flex-col rounded-lg border border-[var(--color-line)] bg-white px-[34px] pb-[31px] pt-[31px]">
+    <Link
+      href="/main/projects/1"
+      className="flex min-h-[351px] flex-col rounded-lg border border-[var(--color-line)] bg-white px-[34px] pb-[31px] pt-[31px] text-inherit no-underline transition-[border-color,box-shadow] duration-150 hover:border-[var(--color-brand)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)]"
+    >
       <h2 className="text-xl font-semibold leading-tight text-[var(--color-heading)]">
         {project.name}
       </h2>
@@ -85,6 +90,6 @@ export default function CardProject({ project }: CardProjectProps) {
           ))}
         </div>
       </div>
-    </article>
+    </Link>
   );
 }

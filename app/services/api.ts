@@ -106,10 +106,13 @@ export async function apiRequest<T>(
       ...init,
       headers,
     });
-  } catch {
-    // transforme les erreurs réseau en message affichable par l'interface
+  } catch (error) {
+    // signale au développeur que le backend ne répond pas
+    console.error("L'API n'est pas connectée.", error);
+
+    // affiche un message simple à l'utilisateur
     throw new ApiError(
-      "Impossible de joindre l'API. Vérifiez votre connexion ou que le serveur est démarré.",
+      "Impossible de se connecter au serveur, veuillez réessayer ultérieurement.",
       0,
       "NETWORK_ERROR"
     );

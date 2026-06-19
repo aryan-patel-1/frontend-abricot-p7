@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { InputCalendarOrangeIcon } from "./input";
+import { InputIcon } from "./input";
 
 export type DashboardView = "list" | "kanban";
 
@@ -29,7 +29,7 @@ type ViewTabsProps = {
 // affiche les onglets de vue du tableau de bord
 export function ViewTabs({ activeView, onViewChange }: ViewTabsProps) {
   const baseClass =
-    "inline-flex h-[45px] items-center gap-[10px] rounded-lg px-[17px] text-sm leading-none text-[var(--color-brand)]";
+    "inline-flex h-[45px] cursor-pointer items-center gap-[10px] rounded-lg px-[17px] text-sm leading-none text-[var(--color-brand)] outline-none transition-[background-color,box-shadow] duration-150 focus:shadow-[var(--shadow-input-focus)]";
   const activeClass = "bg-[var(--color-brand-soft)]";
   const inactiveClass = "bg-white";
 
@@ -54,7 +54,10 @@ export function ViewTabs({ activeView, onViewChange }: ViewTabsProps) {
         }`}
         onClick={() => onViewChange("kanban")}
       >
-        <InputCalendarOrangeIcon className="h-[17px] w-[15px]" />
+        <InputIcon
+          src="/img/input-icon-calendar-orange.png"
+          className="h-[17px] w-[15px]"
+        />
         <span>Kanban</span>
       </button>
     </div>

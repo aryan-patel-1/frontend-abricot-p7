@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import Button from "../../components/button";
@@ -181,6 +182,8 @@ export default function ProjectsPage() {
       if (data.project) {
         const createdProject = data.project;
         setProjects((currentProjects) => [createdProject, ...currentProjects]);
+        setProjectsError("");
+        setIsLoadingProjects(false);
       }
 
       resetCreateForm();
@@ -198,7 +201,7 @@ export default function ProjectsPage() {
 
   return (
     <>
-      <div className="mx-auto w-full max-w-[1230px] px-[30px] pb-[78px] pt-[80px] max-[760px]:px-5 max-[760px]:pt-12">
+      <div className="mx-auto w-full max-w-[1408px] px-4 pb-[78px] pt-[64px] max-[760px]:px-5 max-[760px]:pt-12">
         <header className="flex items-start justify-between gap-8 max-[760px]:flex-col">
           <div>
             <h1 className="text-[25px] font-semibold leading-tight text-[var(--color-heading)]">
@@ -236,7 +239,7 @@ export default function ProjectsPage() {
         ) : null}
 
         {!isLoadingProjects && !projectsError && projects.length > 0 ? (
-          <section className="mt-[65px] grid grid-cols-3 gap-x-[14px] gap-y-[19px] max-[1100px]:grid-cols-2 max-[760px]:grid-cols-1">
+          <section className="mt-[65px] grid grid-cols-3 gap-x-[18px] gap-y-[19px] max-[1100px]:grid-cols-2 max-[760px]:grid-cols-1">
             {projects.map((project) => (
               <CardProject key={project.id} project={project} />
             ))}
@@ -256,11 +259,17 @@ export default function ProjectsPage() {
             <button
               type="button"
               aria-label="Fermer la modale"
-              className="absolute right-[37px] top-[37px] h-5 w-5 cursor-pointer text-[var(--color-muted-icon)]"
+              className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
               onClick={closeCreateModal}
             >
-              <span className="absolute left-1/2 top-1/2 block h-px w-5 -translate-x-1/2 -translate-y-1/2 rotate-45 bg-current" />
-              <span className="absolute left-1/2 top-1/2 block h-px w-5 -translate-x-1/2 -translate-y-1/2 -rotate-45 bg-current" />
+              <Image
+                src="/img/cross-black.png"
+                alt=""
+                width={20}
+                height={20}
+                aria-hidden="true"
+                className="block h-5 w-5"
+              />
             </button>
 
             <form

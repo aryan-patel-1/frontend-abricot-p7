@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState, useSyncExternalStore } from "react";
 
 import Button from "../../components/button";
@@ -123,10 +125,17 @@ function CreateProjectModal({ onClose }: CreateProjectModalProps) {
         <button
           type="button"
           aria-label="Fermer la modale"
-          className="absolute right-[35px] top-[31px] h-8 w-8 cursor-pointer border-0 bg-transparent p-0 text-[42px] font-light leading-[28px] text-[var(--color-muted)]"
+          className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center border-0 bg-transparent p-0"
           onClick={onClose}
         >
-          ×
+          <Image
+            src="/img/cross-black.png"
+            alt=""
+            width={20}
+            height={20}
+            aria-hidden="true"
+            className="block h-5 w-5"
+          />
         </button>
 
         <h2
@@ -226,7 +235,7 @@ function DashboardHeader({
 // affiche une tâche dans une colonne kanban
 function KanbanTaskCard({ task }: { task: TaskListTask }) {
   return (
-    <article className="min-h-[229px] rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[30px]">
+    <article className="min-h-[229px] rounded-lg border border-[var(--color-line)] bg-white px-6 py-[30px]">
       <div className="mb-[10px] flex items-start justify-between gap-4">
         <h3 className="text-[18px] font-semibold leading-tight text-[var(--color-ink)]">
           {task.title}
@@ -241,9 +250,12 @@ function KanbanTaskCard({ task }: { task: TaskListTask }) {
         dueDate={task.dueDate}
         projectName={task.projectName}
       />
-      <Button type="button" className="mt-[33px] w-[121px]">
+      <Link
+        href="/main/projects/1"
+        className="mt-[33px] inline-flex h-[50px] w-[121px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[var(--color-action)] px-7 text-base font-normal leading-none text-white no-underline transition-[background-color,transform] duration-150 hover:bg-[var(--color-ink)] active:translate-y-px"
+      >
         Voir
-      </Button>
+      </Link>
     </article>
   );
 }
@@ -251,14 +263,14 @@ function KanbanTaskCard({ task }: { task: TaskListTask }) {
 // affiche les tâches sous forme de colonnes par statut
 function KanbanView({ tasks }: { tasks: TaskListTask[] }) {
   return (
-    <section className="mt-[51px] grid grid-cols-3 items-start gap-[22px] max-[1100px]:grid-cols-1">
+    <section className="mt-[51px] grid grid-cols-3 items-start gap-[18px] max-[900px]:grid-cols-1">
       {kanbanColumns.map((column) => {
         const columnTasks = tasks.filter((task) => task.status === column.status);
 
         return (
           <article
             key={column.status}
-            className="rounded-lg border border-[var(--color-error-border)] bg-white px-6 py-[43px]"
+            className="min-w-0 rounded-lg border border-[var(--color-error-border)] bg-white px-5 py-[43px]"
           >
             <div className="mb-[41px] flex items-center gap-[12px]">
               <h2 className="text-xl font-semibold leading-tight text-[var(--color-heading)]">
@@ -305,7 +317,7 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-[1300px] px-[30px] pb-[57px] pt-[94px] max-[760px]:px-5 max-[760px]:pt-12">
+    <div className="mx-auto w-full max-w-[1408px] px-4 pb-[57px] pt-[64px] max-[760px]:px-5 max-[760px]:pt-12">
       <DashboardHeader
         user={user}
         onCreateProject={() => setIsCreateProjectModalOpen(true)}
