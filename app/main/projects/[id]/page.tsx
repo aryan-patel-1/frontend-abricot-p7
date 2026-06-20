@@ -2,11 +2,22 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
+import { useEffect, useState } from "react";
 
 import Button from "../../../components/button";
-import { InputIcon } from "../../../components/input";
-import SearchBar from "../../../components/searchBar";
+import TextInput, { InputIcon } from "../../../components/input";
+import {
+  getTask,
+  updateTask,
+  type DashboardTaskStatus,
+  type TaskDetails,
+} from "../../../services/dashboardServices";
 
 type ProjectMember = {
   initials: string;
@@ -307,6 +318,295 @@ function CreateTaskModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+type EditTaskModalProps = {
+  projectId: string;
+  taskId: string;
+  onClose: () => void;
+};
+
+const editableStatuses: {
+  apiStatus: DashboardTaskStatus;
+  status: TaskStatus;
+}[] = [
+  { apiStatus: "TODO", status: "todo" },
+  { apiStatus: "IN_PROGRESS", status: "progress" },
+  { apiStatus: "DONE", status: "done" },
+];
+
+// affiche la tâche demandée depuis le tableau de bord dans un formulaire modifiable
+function EditTaskModal({ projectId, taskId, onClose }: EditTaskModalProps) {
+  const [task, setTask] = useState<TaskDetails | null>(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [status, setStatus] = useState<DashboardTaskStatus>("TODO");
+  const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([]);
+  const [areAssigneesOpen, setAreAssigneesOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const initialAssigneeIds =
+    task?.assignees.map((assignee) => assignee.user.id).sort() ?? [];
+  const currentAssigneeIds = [...selectedAssigneeIds].sort();
+  // active l'enregistrement seulement si une valeur a réellement changé
+  const hasTaskChanged =
+    task !== null &&
+    (title.trim() !== task.title ||
+      description.trim() !== (task.description ?? "") ||
+      dueDate !== (task.dueDate?.slice(0, 10) ?? "") ||
+      status !== task.status ||
+      currentAssigneeIds.join(",") !== initialAssigneeIds.join(","));
+
+  useEffect(() => {
+    let isModalMounted = true;
+
+    async function loadTask() {
+      try {
+        const data = await getTask(projectId, taskId);
+
+        if (!isModalMounted) {
+          return;
+        }
+
+        // initialise chaque champ avec la valeur reçue depuis l'api
+        setTask(data.task);
+        setTitle(data.task.title);
+        setDescription(data.task.description ?? "");
+        setDueDate(data.task.dueDate?.slice(0, 10) ?? "");
+        setStatus(data.task.status);
+        setSelectedAssigneeIds(
+          data.task.assignees.map((assignee) => assignee.user.id)
+        );
+      } catch (error) {
+        if (isModalMounted) {
+          setErrorMessage(
+            error instanceof Error
+              ? error.message
+              : "Impossible de charger la tâche."
+          );
+        }
+      } finally {
+        if (isModalMounted) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    loadTask();
+
+    return () => {
+      isModalMounted = false;
+    };
+  }, [projectId, taskId]);
+
+  function toggleAssignee(userId: string) {
+    setSelectedAssigneeIds((currentIds) =>
+      currentIds.includes(userId)
+        ? currentIds.filter((id) => id !== userId)
+        : [...currentIds, userId]
+    );
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!task || title.trim().length < 2 || !hasTaskChanged || isSaving) {
+      return;
+    }
+
+    setIsSaving(true);
+    setErrorMessage("");
+
+    try {
+      await updateTask(projectId, taskId, {
+        title: title.trim(),
+        description: description.trim(),
+        dueDate: dueDate || null,
+        status,
+        assigneeIds: selectedAssigneeIds,
+      });
+      onClose();
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error
+          ? error.message
+          : "Impossible d'enregistrer la tâche."
+      );
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 px-5 py-8">
+      <section
+        aria-labelledby="edit-task-title"
+        aria-modal="true"
+        role="dialog"
+        className="relative w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[77px] pt-[81px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
+      >
+        <button
+          type="button"
+          aria-label="Fermer la modale"
+          className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
+          onClick={onClose}
+        >
+          <Image
+            src="/img/cross-black.png"
+            alt=""
+            width={20}
+            height={20}
+            aria-hidden="true"
+            className="block h-5 w-5"
+          />
+        </button>
+
+        <form className="flex flex-col" onSubmit={handleSubmit}>
+          <h2
+            id="edit-task-title"
+            className="text-[25px] font-semibold leading-tight text-[var(--color-heading)]"
+          >
+            Modifier
+          </h2>
+
+          {isLoading ? (
+            <p className="mt-[42px] text-sm text-[var(--color-muted)]">
+              Chargement de la tâche...
+            </p>
+          ) : (
+            <>
+              <label className="mt-[42px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
+                Titre
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(event) => setTitle(event.target.value)}
+                  className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                />
+              </label>
+
+              <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
+                Description
+                <input
+                  type="text"
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                />
+              </label>
+
+              <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
+                Échéance
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(event) => setDueDate(event.target.value)}
+                  className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                />
+              </label>
+
+              <div className="relative mt-[26px]">
+                <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
+                  Assigné à :
+                </p>
+                <button
+                  type="button"
+                  aria-expanded={areAssigneesOpen}
+                  className="mt-[7px] flex h-[53px] w-full cursor-pointer items-center justify-between rounded border border-[var(--color-field-line)] bg-white px-4 text-left text-sm text-[var(--color-muted)]"
+                  onClick={() => setAreAssigneesOpen(!areAssigneesOpen)}
+                >
+                  <span>
+                    {selectedAssigneeIds.length} collaborateur
+                    {selectedAssigneeIds.length > 1 ? "s" : ""}
+                  </span>
+                  <Image
+                    src="/img/open-collapse.svg"
+                    alt=""
+                    width={15}
+                    height={8}
+                    aria-hidden="true"
+                    className="block h-2 w-[15px] flex-none"
+                  />
+                </button>
+                {areAssigneesOpen ? (
+                  <div className="absolute left-0 right-0 top-[82px] z-10 rounded border border-[var(--color-field-line)] bg-white py-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+                    {task?.assignees.map((assignee) => (
+                      <label
+                        key={assignee.id}
+                        className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm text-[var(--color-ink)]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedAssigneeIds.includes(assignee.user.id)}
+                          onChange={() => toggleAssignee(assignee.user.id)}
+                          className="h-4 w-4 accent-[var(--color-brand)]"
+                        />
+                        {assignee.user.name || assignee.user.email}
+                      </label>
+                    ))}
+                    {task?.assignees.length === 0 ? (
+                      <p className="px-4 py-2 text-sm text-[var(--color-muted)]">
+                        Aucun collaborateur assigné
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+
+              <div className="mt-[26px]">
+                <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
+                  Statut :
+                </p>
+                <div className="mt-[16px] flex flex-wrap gap-3">
+                  {editableStatuses.map((statusOption) => (
+                    <button
+                      key={statusOption.apiStatus}
+                      type="button"
+                      aria-pressed={status === statusOption.apiStatus}
+                      className={`rounded-full outline-offset-2 ${
+                        status === statusOption.apiStatus
+                          ? "outline outline-2 outline-[var(--color-brand)]"
+                          : ""
+                      }`}
+                      onClick={() => setStatus(statusOption.apiStatus)}
+                    >
+                      <TaskStatusBadge status={statusOption.status} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {errorMessage ? (
+            <p className="mt-5 text-sm text-[var(--color-error)]">
+              {errorMessage}
+            </p>
+          ) : null}
+
+          <Button
+            type="submit"
+            disabled={
+              isLoading ||
+              !task ||
+              title.trim().length < 2 ||
+              !hasTaskChanged ||
+              isSaving
+            }
+            className={`mt-[56px] w-[244px] ${
+              hasTaskChanged
+                ? ""
+                : "bg-[#e5e7eb] text-[#9ca3af] hover:bg-[#e5e7eb] disabled:opacity-100"
+            }`}
+          >
+            {isSaving ? "Enregistrement..." : "Enregistrer"}
+          </Button>
+        </form>
+      </section>
+    </div>
+  );
+}
+
 function CreateTaskAiModal({ onClose }: { onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-5 py-8">
@@ -377,9 +677,20 @@ function CreateTaskAiModal({ onClose }: { onClose: () => void }) {
 }
 
 export default function ProjectPage() {
+  const params = useParams<{ id: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [isCreateTaskAiModalOpen, setIsCreateTaskAiModalOpen] = useState(false);
+  // la présence de taskId dans l'url décide directement si la modale est ouverte
+  const taskToEditId = searchParams.get("taskId");
+
+  function closeEditTaskModal() {
+    // retire le paramètre pour éviter de rouvrir la modale au rafraîchissement
+    router.replace(pathname, { scroll: false });
+  }
 
   return (
     <div className="mx-auto w-full max-w-[1080px] px-4 pb-[95px] pt-[64px] max-[760px]:px-5 max-[760px]:pt-10">
@@ -540,11 +851,13 @@ export default function ProjectPage() {
                 </div>
               ) : null}
             </div>
-            <SearchBar
+            <TextInput
+              iconSrc="/img/icone-recherche.svg"
               label="Rechercher une tâche"
               placeholder="Rechercher une tâche"
               type="text"
               className="h-[61px] w-[280px] max-w-none max-[640px]:w-full"
+              variant="search"
             />
           </div>
         </div>
@@ -560,6 +873,13 @@ export default function ProjectPage() {
       ) : null}
       {isCreateTaskAiModalOpen ? (
         <CreateTaskAiModal onClose={() => setIsCreateTaskAiModalOpen(false)} />
+      ) : null}
+      {taskToEditId ? (
+        <EditTaskModal
+          projectId={params.id}
+          taskId={taskToEditId}
+          onClose={closeEditTaskModal}
+        />
       ) : null}
     </div>
   );

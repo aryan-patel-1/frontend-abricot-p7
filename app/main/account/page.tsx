@@ -49,7 +49,7 @@ export default function AccountPage() {
 
   function handleLogout() {
     logout();
-    router.push("/login");
+    router.replace("/login");
   }
 
   return (

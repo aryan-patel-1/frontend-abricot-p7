@@ -56,6 +56,7 @@ function toTask(task: DashboardTask): TaskListTask {
     title: task.title,
     description: task.description,
     status: taskStatusByApiStatus[task.status],
+    projectId: task.project.id,
     projectName: task.project.name,
     dueDate: task.dueDate,
     commentsCount: task.comments.length,
@@ -250,8 +251,9 @@ function KanbanTaskCard({ task }: { task: TaskListTask }) {
         dueDate={task.dueDate}
         projectName={task.projectName}
       />
+      {/* garde l'identifiant de la tâche dans l'url pour ouvrir sa modale */}
       <Link
-        href="/main/projects/1"
+        href={`/main/projects/${task.projectId}?taskId=${task.id}`}
         className="mt-[33px] inline-flex h-[50px] w-[121px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[var(--color-action)] px-7 text-base font-normal leading-none text-white no-underline transition-[background-color,transform] duration-150 hover:bg-[var(--color-ink)] active:translate-y-px"
       >
         Voir

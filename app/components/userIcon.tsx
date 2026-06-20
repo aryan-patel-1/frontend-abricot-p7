@@ -6,8 +6,11 @@ type UserIconProps = {
 };
 
 function getInitials(name: string) {
-  // garde les deux premières lettres du nom pour l'avatar
-  return name.trim().slice(0, 2).toUpperCase();
+  const nameParts = name.trim().split(/\s+/).filter(Boolean);
+  const firstNameInitial = nameParts[0]?.[0] ?? "";
+  const lastNameInitial = nameParts[1]?.[0] ?? "";
+
+  return `${firstNameInitial}${lastNameInitial}`.toUpperCase();
 }
 
 export default function UserIcon({

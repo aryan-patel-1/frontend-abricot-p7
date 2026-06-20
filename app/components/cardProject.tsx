@@ -40,7 +40,7 @@ export default function CardProject({ project }: CardProjectProps) {
 
   return (
     <Link
-      href="/main/projects/1"
+      href={`/main/projects/${project.id}`}
       className="flex min-h-[351px] flex-col rounded-lg border border-[var(--color-line)] bg-white px-[34px] pb-[31px] pt-[31px] text-inherit no-underline transition-[border-color,box-shadow] duration-150 hover:border-[var(--color-brand)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)]"
     >
       <h2 className="text-xl font-semibold leading-tight text-[var(--color-heading)]">

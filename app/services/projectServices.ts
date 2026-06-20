@@ -1,7 +1,5 @@
 import type { AuthUser } from "./authServices";
 import { apiRequest } from "./api";
-import { getData } from "./dataProvider";
-import { mockProjects } from "../mocks/mocksData";
 
 export type ProjectRole = "OWNER" | "ADMIN" | "CONTRIBUTOR";
 
@@ -50,28 +48,15 @@ export type SearchUsersResponse = {
 
 // récupère les projets accessibles à l'utilisateur connecté
 export function getProjects() {
-  return getData({ projects: mockProjects }, () =>
-    apiRequest<ProjectsResponse>("/projects")
-  );
+  return apiRequest<ProjectsResponse>("/projects");
 }
 
 // crée un projet puis renvoie le projet créé avec ses membres
 export function createProject(payload: CreateProjectPayload) {
-  return getData(
-    {
-      project: {
-        ...mockProjects[0],
-        id: `mock-project-${Date.now()}`,
-        name: payload.name,
-        description: payload.description,
-      },
-    },
-    () =>
-      apiRequest<CreateProjectResponse>("/projects", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      })
-  );
+  return apiRequest<CreateProjectResponse>("/projects", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 // recherche des utilisateurs réels pour les proposer comme contributeurs

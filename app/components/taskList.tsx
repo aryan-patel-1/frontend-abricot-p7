@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 import Comment from "./comment";
-import { InputIcon } from "./input";
-import SearchBar from "./searchBar";
+import TextInput, { InputIcon } from "./input";
 import Tag, { type TagStatus } from "./tag";
 
 export type TaskListTask = {
@@ -14,6 +13,7 @@ export type TaskListTask = {
   description: string | null;
   dueDate: string | null;
   id: string;
+  projectId: string;
   projectName: string;
   status: TagStatus;
   title: string;
@@ -100,7 +100,7 @@ function TaskCard({ task }: { task: TaskListTask }) {
       <div className="flex h-full flex-col items-end justify-between gap-6 max-[700px]:h-auto max-[700px]:items-start">
         <Tag status={task.status} />
         <Link
-          href="/main/projects/1"
+          href={`/main/projects/${task.projectId}?taskId=${task.id}`}
           className="inline-flex h-[50px] w-[121px] cursor-pointer items-center justify-center rounded-lg border-0 bg-[var(--color-action)] px-7 text-base font-normal leading-none text-white no-underline transition-[background-color,transform] duration-150 hover:bg-[var(--color-ink)] active:translate-y-px"
         >
           Voir
@@ -157,10 +157,12 @@ export function ListView({ tasks }: ListViewProps) {
             Par ordre de priorité
           </p>
         </div>
-        <SearchBar
+        <TextInput
+          iconSrc="/img/icone-recherche.svg"
           label="Rechercher une tâche"
           placeholder="Rechercher une tâche"
           type="text"
+          variant="search"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
         />
