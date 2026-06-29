@@ -9,10 +9,12 @@ import { mockUsers } from "../../mocks/mocksData";
 import { getSavedAuthUser, type AuthUser } from "../../services/authServices";
 import { isUsingMockData } from "../../services/dataProvider";
 import {
+  addContributor,
   createProject,
   getProjects,
   searchUsers,
   type Project,
+  updateProject,
 } from "../../services/projectServices";
 
 // lit l'utilisateur sauvegardé seulement côté navigateur
@@ -40,13 +42,25 @@ function isMockAccount(user: AuthUser | null) {
   return mockUsers.some((mockUser) => mockUser.id === user?.id);
 }
 
+function getProjectContributorIds(project: Project | null) {
+  return project?.members.map((member) => member.user.id) ?? [];
+}
+
 export default function ProjectsPage() {
   // garde l'état de la modale et des champs du formulaire en local
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isContributorsOpen, setIsContributorsOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isEditContributorsOpen, setIsEditContributorsOpen] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState<Project | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [selectedContributorIds, setSelectedContributorIds] = useState<
+    string[]
+  >([]);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState("");
+  const [selectedEditContributorIds, setSelectedEditContributorIds] = useState<
     string[]
   >([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -54,8 +68,10 @@ export default function ProjectsPage() {
   const [contributorsError, setContributorsError] = useState("");
   const [projectsError, setProjectsError] = useState("");
   const [formError, setFormError] = useState("");
+  const [editFormError, setEditFormError] = useState("");
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [isUpdatingProject, setIsUpdatingProject] = useState(false);
 
   // récupère la session sauvegardée sans casser le rendu côté serveur
   const user = useSyncExternalStore(
@@ -91,7 +107,7 @@ export default function ProjectsPage() {
   }, []);
 
   useEffect(() => {
-    if (!isCreateModalOpen) {
+    if (!isCreateModalOpen && !isEditModalOpen) {
       return;
     }
 
@@ -118,11 +134,15 @@ export default function ProjectsPage() {
     }
 
     loadContributors();
-  }, [isCreateModalOpen, user]);
+  }, [isCreateModalOpen, isEditModalOpen, user]);
 
   // active le bouton seulement quand les champs obligatoires sont remplis
   const canAddProject =
     title.trim() !== "" && description.trim() !== "" && !isCreatingProject;
+  const canUpdateProject =
+    editTitle.trim() !== "" &&
+    editDescription.trim() !== "" &&
+    !isUpdatingProject;
 
   function closeCreateModal() {
     setIsCreateModalOpen(false);
@@ -130,9 +150,36 @@ export default function ProjectsPage() {
     setFormError("");
   }
 
+  function openEditModal(project: Project) {
+    setProjectToEdit(project);
+    setEditTitle(project.name);
+    setEditDescription(project.description ?? "");
+    setSelectedEditContributorIds(getProjectContributorIds(project));
+    setEditFormError("");
+    setIsEditContributorsOpen(false);
+    setIsEditModalOpen(true);
+  }
+
+  function closeEditModal() {
+    setIsEditModalOpen(false);
+    setIsEditContributorsOpen(false);
+    setProjectToEdit(null);
+    setEditFormError("");
+  }
+
   function toggleContributor(contributorId: string) {
     // ajoute ou retire un contributeur sans modifier directement l'ancien tableau
     setSelectedContributorIds((currentContributorIds) => {
+      if (currentContributorIds.includes(contributorId)) {
+        return currentContributorIds.filter((id) => id !== contributorId);
+      }
+
+      return [...currentContributorIds, contributorId];
+    });
+  }
+
+  function toggleEditContributor(contributorId: string) {
+    setSelectedEditContributorIds((currentContributorIds) => {
       if (currentContributorIds.includes(contributorId)) {
         return currentContributorIds.filter((id) => id !== contributorId);
       }
@@ -149,6 +196,17 @@ export default function ProjectsPage() {
 
     return contributors
       .filter((contributor) => selectedContributorIds.includes(contributor.id))
+      .map((contributor) => contributor.name || contributor.email)
+      .join(", ");
+  }
+
+  function getEditContributorsLabel() {
+    if (selectedEditContributorIds.length === 0) {
+      return "Choisir un ou plusieurs collaborateurs";
+    }
+
+    return contributors
+      .filter((contributor) => selectedEditContributorIds.includes(contributor.id))
       .map((contributor) => contributor.name || contributor.email)
       .join(", ");
   }
@@ -199,6 +257,48 @@ export default function ProjectsPage() {
     }
   }
 
+  async function handleUpdateProject() {
+    if (!canUpdateProject || !projectToEdit) {
+      return;
+    }
+
+    const currentContributorIds = getProjectContributorIds(projectToEdit);
+    const contributorEmailsToAdd = contributors
+      .filter(
+        (contributor) =>
+          selectedEditContributorIds.includes(contributor.id) &&
+          !currentContributorIds.includes(contributor.id)
+      )
+      .map((contributor) => contributor.email);
+
+    setIsUpdatingProject(true);
+    setEditFormError("");
+
+    try {
+      const data = await updateProject(projectToEdit.id, {
+        name: editTitle.trim(),
+        description: editDescription.trim(),
+      });
+
+      for (const email of contributorEmailsToAdd) {
+        await addContributor(projectToEdit.id, { email });
+      }
+
+      const refreshedProjects = await getProjects();
+      setProjects(refreshedProjects.projects);
+      setProjectToEdit(data.project);
+      closeEditModal();
+    } catch (error) {
+      setEditFormError(
+        error instanceof Error
+          ? error.message
+          : "Impossible de modifier le projet."
+      );
+    } finally {
+      setIsUpdatingProject(false);
+    }
+  }
+
   return (
     <>
       <div className="mx-auto w-full max-w-[1408px] px-4 pb-[78px] pt-[64px] max-[760px]:px-5 max-[760px]:pt-12">
@@ -241,7 +341,11 @@ export default function ProjectsPage() {
         {!isLoadingProjects && !projectsError && projects.length > 0 ? (
           <section className="mt-[65px] grid grid-cols-3 gap-x-[18px] gap-y-[19px] max-[1100px]:grid-cols-2 max-[760px]:grid-cols-1">
             {projects.map((project) => (
-              <CardProject key={project.id} project={project} />
+              <CardProject
+                key={project.id}
+                project={project}
+                onEdit={openEditModal}
+              />
             ))}
           </section>
         ) : null}
@@ -369,6 +473,132 @@ export default function ProjectsPage() {
           </section>
         </div>
       )}
+
+      {isEditModalOpen && projectToEdit ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-5 py-8">
+          <section
+            aria-modal="true"
+            role="dialog"
+            aria-labelledby="edit-project-title"
+            className="relative min-h-[616px] w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[79px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-0 max-[640px]:px-6 max-[640px]:py-14"
+          >
+            <button
+              type="button"
+              aria-label="Fermer la modale"
+              className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
+              onClick={closeEditModal}
+            >
+              <Image
+                src="/img/cross-black.png"
+                alt=""
+                width={20}
+                height={20}
+                aria-hidden="true"
+                className="block h-5 w-5"
+              />
+            </button>
+
+            <form
+              onSubmit={(event) => {
+                event.preventDefault();
+                handleUpdateProject();
+              }}
+              className="flex flex-col"
+            >
+              <h2
+                id="edit-project-title"
+                className="text-[25px] font-semibold leading-tight text-[var(--color-heading)]"
+              >
+                Modifier un projet
+              </h2>
+
+              <label className="mt-[42px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
+                Titre*
+                <input
+                  type="text"
+                  value={editTitle}
+                  disabled={isUpdatingProject}
+                  onChange={(event) => setEditTitle(event.target.value)}
+                  className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-3.5 text-base text-[var(--color-ink)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                />
+              </label>
+
+              <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
+                Description*
+                <input
+                  type="text"
+                  value={editDescription}
+                  disabled={isUpdatingProject}
+                  onChange={(event) => setEditDescription(event.target.value)}
+                  className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-3.5 text-base text-[var(--color-ink)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                />
+              </label>
+
+              <div className="relative mt-[26px]">
+                <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
+                  Contributeurs
+                </p>
+                <button
+                  type="button"
+                  className="mt-[7px] flex h-[53px] w-full cursor-pointer items-center justify-between rounded border border-[var(--color-field-line)] bg-white px-4 text-left text-sm text-[var(--color-muted)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
+                  onClick={() =>
+                    setIsEditContributorsOpen(!isEditContributorsOpen)
+                  }
+                >
+                  <span className="truncate">{getEditContributorsLabel()}</span>
+                  <span className="ml-4 h-3 w-3 rotate-45 border-b border-r border-[var(--color-ink)]" />
+                </button>
+
+                {isEditContributorsOpen ? (
+                  <div className="absolute left-0 right-0 top-[82px] z-10 max-h-[220px] overflow-y-auto rounded border border-[var(--color-field-line)] bg-white py-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]">
+                    {contributors.map((contributor) => (
+                      <label
+                        key={contributor.id}
+                        className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-surface-main)]"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedEditContributorIds.includes(
+                            contributor.id
+                          )}
+                          disabled={isUpdatingProject}
+                          onChange={() => toggleEditContributor(contributor.id)}
+                          className="h-4 w-4 accent-[var(--color-brand)]"
+                        />
+                        {contributor.name || contributor.email}
+                      </label>
+                    ))}
+                    {contributors.length === 0 ? (
+                      <p className="px-4 py-2 text-sm text-[var(--color-muted)]">
+                        Aucun contributeur disponible
+                      </p>
+                    ) : null}
+                  </div>
+                ) : null}
+                {contributorsError ? (
+                  <p className="mt-2 text-xs text-[var(--color-error)]">
+                    {contributorsError}
+                  </p>
+                ) : null}
+              </div>
+
+              {editFormError ? (
+                <p className="mt-6 text-sm text-[var(--color-error)]">
+                  {editFormError}
+                </p>
+              ) : null}
+
+              <Button
+                type="submit"
+                disabled={!canUpdateProject}
+                className="mt-[56px] w-[181px]"
+              >
+                {isUpdatingProject ? "Enregistrement..." : "Enregistrer"}
+              </Button>
+            </form>
+          </section>
+        </div>
+      ) : null}
     </>
   );
 }
