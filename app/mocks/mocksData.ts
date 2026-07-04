@@ -335,9 +335,11 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-1",
+          createdAt: "2026-06-10T09:30:00.000Z",
         },
         {
           id: "mock-comment-2",
+          createdAt: "2026-06-10T14:45:00.000Z",
         },
       ],
     },
@@ -366,6 +368,7 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-3",
+          createdAt: "2026-06-14T11:20:00.000Z",
         },
       ],
     },
@@ -382,12 +385,15 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-4",
+          createdAt: "2026-06-16T08:15:00.000Z",
         },
         {
           id: "mock-comment-5",
+          createdAt: "2026-06-16T10:40:00.000Z",
         },
         {
           id: "mock-comment-6",
+          createdAt: "2026-06-17T13:05:00.000Z",
         },
       ],
     },
@@ -404,6 +410,7 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-7",
+          createdAt: "2026-06-21T16:30:00.000Z",
         },
       ],
     },
@@ -432,9 +439,11 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-8",
+          createdAt: "2026-06-18T09:10:00.000Z",
         },
         {
           id: "mock-comment-9",
+          createdAt: "2026-06-18T15:25:00.000Z",
         },
       ],
     },
@@ -451,6 +460,7 @@ export const mockAssignedTasks: { tasks: DashboardTask[] } = {
       comments: [
         {
           id: "mock-comment-10",
+          createdAt: "2026-07-03T12:00:00.000Z",
         },
       ],
     },

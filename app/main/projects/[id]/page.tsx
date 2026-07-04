@@ -9,24 +9,31 @@ import {
   useSearchParams,
 } from "next/navigation";
 import {
-  type FormEvent,
   useCallback,
   useEffect,
-  useRef,
   useState,
   useSyncExternalStore,
 } from "react";
 
+import AiGeneratedTasksModal from "../../../components/aiGeneratedTasksModal";
 import Button from "../../../components/button";
+import CreateTaskAiModal from "../../../components/createTaskAiModal";
+import CreateTaskModal from "../../../components/createTaskModal";
+import EditTaskModal from "../../../components/editTaskModal";
 import TextInput, { InputIcon } from "../../../components/input";
+import TaskStatusBadge, {
+  type TaskStatus,
+} from "../../../components/taskStatusBadge";
+import type {
+  AiGeneratedTask,
+  TaskAssigneeOption,
+} from "../../../components/taskModalTypes";
 import {
   createTask,
   createTaskComment,
-  getTask,
   getProjectTasks,
   type DashboardTaskStatus,
   type ProjectTask,
-  updateTask,
 } from "../../../services/dashboardServices";
 import { getSavedAuthUser } from "../../../services/authServices";
 import {
@@ -40,8 +47,6 @@ type ProjectMember = {
   name: string;
   role?: string;
 };
-
-type TaskStatus = "todo" | "progress" | "done";
 
 type Task = {
   id: string;
@@ -61,9 +66,10 @@ type TaskComment = {
   authorInitials: string;
 };
 
-type TaskAssigneeOption = {
-  id: string;
-  name: string;
+type TaskView = "list" | "calendar";
+
+type AiGeneratedTasksResponse = {
+  tasks: AiGeneratedTask[];
 };
 
 type TaskCardProps = Task & {
@@ -77,6 +83,76 @@ const projectMembers: ProjectMember[] = [
   { initials: "BD", name: "Bertrand Dupont" },
   { initials: "AD", name: "Anne Dupont" },
 ];
+
+const aiGeneratedTasks: AiGeneratedTask[] = [
+];
+
+// vérifie au runtime qu'une tâche ia contient les champs attendus
+function isAiGeneratedTask(value: unknown): value is AiGeneratedTask {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const task = value as Record<string, unknown>;
+
+  return (
+    typeof task.title === "string" &&
+    typeof task.description === "string"
+  );
+}
+
+// sécurise le json reçu avant de l'utiliser dans l'interface
+function isAiGeneratedTasksResponse(
+  value: unknown
+): value is AiGeneratedTasksResponse {
+  if (!value || typeof value !== "object") {
+    return false;
+  }
+
+  const response = value as Record<string, unknown>;
+
+  return Array.isArray(response.tasks) && response.tasks.every(isAiGeneratedTask);
+}
+
+function getApiErrorMessage(value: unknown) {
+  if (!value || typeof value !== "object") {
+    return "Impossible de générer les tâches.";
+  }
+
+  const response = value as Record<string, unknown>;
+
+  return typeof response.message === "string"
+    ? response.message
+    : "Impossible de générer les tâches.";
+}
+
+async function requestAiGeneratedTasks(prompt: string) {
+  // appelle le backend ia et vérifie que la réponse contient bien des tâches
+  const response = await fetch("/api/ai/generate-tasks", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt }),
+  });
+  let data: unknown;
+
+  try {
+    data = (await response.json()) as unknown;
+  } catch {
+    throw new Error("Réponse invalide reçue depuis l'API.");
+  }
+
+  if (!response.ok) {
+    throw new Error(getApiErrorMessage(data));
+  }
+
+  if (!isAiGeneratedTasksResponse(data)) {
+    throw new Error("La réponse de l'IA est invalide.");
+  }
+
+  return data.tasks;
+}
 
 // lit l'utilisateur sauvegardé seulement côté navigateur
 function readSavedUser() {
@@ -99,33 +175,22 @@ function watchSavedUserChanges(onUserChange: () => void) {
   return () => window.removeEventListener("storage", onUserChange);
 }
 
-const statusStyles: Record<
-  TaskStatus,
-  {
-    label: string;
-    className: string;
-  }
-> = {
-  todo: {
-    label: "À faire",
-    className: "bg-[var(--color-todo-bg)] text-[var(--color-todo-text)]",
-  },
-  progress: {
-    label: "En cours",
-    className: "bg-[var(--color-progress-bg)] text-[var(--color-progress-text)]",
-  },
-  done: {
-    label: "Terminée",
-    className: "bg-[var(--color-done-bg)] text-[var(--color-done-text)]",
-  },
-};
-
 // convertit les statuts du backend vers les statuts utilisés par l'interface
 const taskStatusByApiStatus: Record<DashboardTaskStatus, TaskStatus> = {
   TODO: "todo",
   IN_PROGRESS: "progress",
   DONE: "done",
 };
+
+const statusFilterOptions: {
+  label: string;
+  value: TaskStatus | "all";
+}[] = [
+  { label: "Tous", value: "all" },
+  { label: "À faire", value: "todo" },
+  { label: "En cours", value: "progress" },
+  { label: "Terminée", value: "done" },
+];
 
 function getInitials(name: string) {
   // crée les initiales affichées dans les badges assignés
@@ -164,6 +229,11 @@ function formatCommentDate(createdAt: string | null) {
   }).format(new Date(createdAt));
 }
 
+function getCommentCreatedAt(createdAt?: string) {
+  // garantit une date affichable quand le mock ou l'api ne fournit pas createdAt
+  return createdAt ?? new Date().toISOString();
+}
+
 // adapte la réponse api au format simple attendu par les cartes de tâches
 function toTask(task: ProjectTask): Task {
   return {
@@ -187,7 +257,7 @@ function toTask(task: ProjectTask): Task {
       return {
         id: comment.id,
         content: comment.content ?? "",
-        createdAt: comment.createdAt ?? null,
+        createdAt: getCommentCreatedAt(comment.createdAt),
         authorName,
         authorInitials: getInitials(authorName),
       };
@@ -210,18 +280,6 @@ function MemberBadge({ initials, name, role }: ProjectMember) {
       >
         {role || name}
       </span>
-    </span>
-  );
-}
-
-function TaskStatusBadge({ status }: { status: TaskStatus }) {
-  const statusStyle = statusStyles[status];
-
-  return (
-    <span
-      className={`inline-flex h-[28px] items-center rounded-full px-4 text-[15px] leading-none ${statusStyle.className}`}
-    >
-      {statusStyle.label}
     </span>
   );
 }
@@ -257,6 +315,7 @@ function TaskCard({
         content: commentContent.trim(),
       });
       setCommentContent("");
+      // recharge les tâches pour récupérer le commentaire avec sa date api
       await onCommentCreated();
     } catch (error) {
       console.error("Impossible d'ajouter le commentaire.", error);
@@ -280,13 +339,14 @@ function TaskCard({
             {description || "Aucune description"}
           </p>
         </div>
-        <button
-          type="button"
+        {/* le paramètre taskId dans l'url ouvre la modale avec cette tâche */}
+        <Link
+          href={`?taskId=${id}`}
           aria-label="Options de la tâche"
           className="flex h-[56px] w-[56px] items-center justify-center justify-self-end rounded-lg border border-[var(--color-line)] bg-white text-sm leading-none text-[var(--color-muted)]"
         >
           ...
-        </button>
+        </Link>
       </div>
 
       <div className="mt-[32px] flex flex-wrap items-center gap-x-[8px] gap-y-3 text-sm leading-none text-[var(--color-muted)]">
@@ -413,566 +473,6 @@ function TaskCard({
   );
 }
 
-function CreateTaskModal({
-  assigneeOptions,
-  onCreated,
-  onClose,
-  projectId,
-}: {
-  assigneeOptions: TaskAssigneeOption[];
-  onCreated: () => Promise<void>;
-  onClose: () => void;
-  projectId: string;
-}) {
-  const dueDateInputRef = useRef<HTMLInputElement>(null);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [areAssigneesOpen, setAreAssigneesOpen] = useState(false);
-  const [selectedAssigneeIds, setSelectedAssigneeIds] = useState<string[]>([]);
-  const [status, setStatus] = useState<DashboardTaskStatus>("TODO");
-  const [isCreatingTask, setIsCreatingTask] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const selectedAssignees = assigneeOptions.filter((assigneeOption) =>
-    selectedAssigneeIds.includes(assigneeOption.id)
-  );
-  const canCreateTask =
-    title.trim().length >= 2 && description.trim() !== "" && dueDate !== "";
-  const selectedAssigneesLabel =
-    selectedAssignees.length > 0
-      ? selectedAssignees.map((assigneeOption) => assigneeOption.name).join(", ")
-      : "Choisir un ou plusieurs collaborateurs";
-
-  function openDueDatePicker() {
-    dueDateInputRef.current?.showPicker?.();
-    dueDateInputRef.current?.focus();
-  }
-
-  function toggleAssignee(assigneeId: string) {
-    setSelectedAssigneeIds((currentAssigneeIds) =>
-      currentAssigneeIds.includes(assigneeId)
-        ? currentAssigneeIds.filter((currentAssigneeId) => currentAssigneeId !== assigneeId)
-        : [...currentAssigneeIds, assigneeId]
-    );
-  }
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!canCreateTask || isCreatingTask) {
-      return;
-    }
-
-    try {
-      setIsCreatingTask(true);
-      setErrorMessage("");
-
-      await createTask(projectId, {
-        title: title.trim(),
-        description: description.trim(),
-        dueDate,
-        status,
-        assigneeIds: selectedAssigneeIds,
-      });
-      await onCreated();
-      onClose();
-    } catch (error) {
-      console.error("Impossible de créer la tâche.", error);
-      setErrorMessage("Impossible de créer la tâche.");
-    } finally {
-      setIsCreatingTask(false);
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-5 py-8">
-      <section
-        aria-labelledby="create-task-title"
-        aria-modal="true"
-        role="dialog"
-        className="relative w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
-      >
-        <button
-          type="button"
-          aria-label="Fermer la modale"
-          className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
-          onClick={onClose}
-        >
-          <Image
-            src="/img/cross-black.png"
-            alt=""
-            width={20}
-            height={20}
-            aria-hidden="true"
-            className="block h-5 w-5"
-          />
-        </button>
-
-        <form className="flex flex-col" onSubmit={handleSubmit}>
-          <h2
-            id="create-task-title"
-            className="text-[25px] font-semibold leading-tight text-[var(--color-heading)]"
-          >
-            Créer une tâche
-          </h2>
-
-          <label className="mt-[42px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Titre*
-            <input
-              type="text"
-              value={title}
-              disabled={isCreatingTask}
-              onChange={(event) => setTitle(event.target.value)}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-3.5 text-base text-[var(--color-ink)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Description*
-            <input
-              type="text"
-              value={description}
-              disabled={isCreatingTask}
-              onChange={(event) => setDescription(event.target.value)}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-3.5 text-base text-[var(--color-ink)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Échéance*
-            <span className="flex h-[53px] items-center rounded border border-[var(--color-field-line)] bg-white px-3.5">
-              <input
-                ref={dueDateInputRef}
-                type="date"
-                value={dueDate}
-                disabled={isCreatingTask}
-                onChange={(event) => setDueDate(event.target.value)}
-                className="min-w-0 flex-1 border-0 bg-transparent p-0 text-base text-[var(--color-ink)] outline-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-              />
-              <button
-                type="button"
-                aria-label="Ouvrir le calendrier"
-                className="flex h-8 w-8 items-center justify-center"
-                disabled={isCreatingTask}
-                onClick={openDueDatePicker}
-              >
-                <InputIcon
-                  src="/img/input-icon-calendar.svg"
-                  className="h-[17px] w-[15px]"
-                />
-              </button>
-            </span>
-          </label>
-
-          <div className="relative mt-[26px]">
-            <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
-              Assigné à :
-            </p>
-            <button
-              type="button"
-              aria-controls="create-task-assignees"
-              aria-expanded={areAssigneesOpen}
-              className="mt-[7px] flex h-[53px] w-full cursor-pointer items-center justify-between rounded border border-[var(--color-field-line)] bg-white px-4 text-left text-sm text-[var(--color-muted)]"
-              disabled={isCreatingTask}
-              onClick={() => setAreAssigneesOpen(!areAssigneesOpen)}
-            >
-              <span className="truncate">{selectedAssigneesLabel}</span>
-              <Image
-                src={
-                  areAssigneesOpen
-                    ? "/img/close-collapse.svg"
-                    : "/img/open-collapse.svg"
-                }
-                alt=""
-                width={15}
-                height={8}
-                aria-hidden="true"
-                className="block h-2 w-[15px] flex-none"
-              />
-            </button>
-            {areAssigneesOpen ? (
-              <div
-                id="create-task-assignees"
-                className="absolute left-0 right-0 top-[82px] z-10 max-h-[190px] overflow-y-auto rounded border border-[var(--color-field-line)] bg-white py-2 shadow-[0_8px_24px_rgba(0,0,0,0.12)]"
-              >
-                {assigneeOptions.map((assigneeOption) => (
-                  <label
-                    key={assigneeOption.id}
-                    className="flex cursor-pointer items-center gap-3 px-4 py-2 text-sm text-[var(--color-ink)] hover:bg-[var(--color-surface-main)]"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedAssigneeIds.includes(assigneeOption.id)}
-                      disabled={isCreatingTask}
-                      onChange={() => toggleAssignee(assigneeOption.id)}
-                      className="h-4 w-4 accent-[var(--color-brand)]"
-                    />
-                    <span>{assigneeOption.name}</span>
-                  </label>
-                ))}
-                {assigneeOptions.length === 0 ? (
-                  <p className="px-4 py-2 text-sm text-[var(--color-muted)]">
-                    Aucun collaborateur disponible
-                  </p>
-                ) : null}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="mt-[26px]">
-            <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
-              Statut :
-            </p>
-            <div className="mt-[16px] flex flex-wrap gap-3">
-              {editableStatuses.map((statusOption) => (
-                <button
-                  key={statusOption.value}
-                  type="button"
-                  aria-pressed={status === statusOption.value}
-                  className={`rounded-full outline-offset-2 ${
-                    status === statusOption.value
-                      ? "outline outline-2 outline-[var(--color-brand)]"
-                      : ""
-                  }`}
-                  disabled={isCreatingTask}
-                  onClick={() => setStatus(statusOption.value)}
-                >
-                  <TaskStatusBadge status={statusOption.status} />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {errorMessage ? (
-            <p className="mt-[20px] text-sm text-[var(--color-error-text)]">
-              {errorMessage}
-            </p>
-          ) : null}
-
-          <Button
-            type="submit"
-            disabled={!canCreateTask || isCreatingTask}
-            className={`mt-[56px] w-[201px] text-sm ${
-              canCreateTask
-                ? ""
-                : "bg-[#e5e7eb] text-[#9CA3AF] hover:bg-[#e5e7eb] disabled:opacity-100"
-            }`}
-          >
-            {isCreatingTask ? "Création..." : "+ Ajouter une tâche"}
-          </Button>
-        </form>
-      </section>
-    </div>
-  );
-}
-
-type EditTaskModalProps = {
-  onSaved: () => Promise<void>;
-  onClose: () => void;
-  projectId: string;
-  taskId: string;
-};
-
-const editableStatuses: {
-  value: "TODO" | "IN_PROGRESS" | "DONE";
-  status: TaskStatus;
-}[] = [
-  { value: "TODO", status: "todo" },
-  { value: "IN_PROGRESS", status: "progress" },
-  { value: "DONE", status: "done" },
-];
-
-const statusFilterOptions: {
-  label: string;
-  value: TaskStatus | "all";
-}[] = [
-  { label: "Tous", value: "all" },
-  { label: "À faire", value: "todo" },
-  { label: "En cours", value: "progress" },
-  { label: "Terminée", value: "done" },
-];
-
-function formatDateInputValue(dueDate: string | null) {
-  if (!dueDate) {
-    return "";
-  }
-
-  return dueDate.slice(0, 10);
-}
-
-// affiche un formulaire de modification prérempli avec les données api
-function EditTaskModal({ onClose, onSaved, projectId, taskId }: EditTaskModalProps) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [dueDate, setDueDate] = useState("");
-  const [assignee, setAssignee] = useState("");
-  const [assigneeIds, setAssigneeIds] = useState<string[]>([]);
-  const [status, setStatus] = useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
-  const [isLoadingTask, setIsLoadingTask] = useState(true);
-  const [isSavingTask, setIsSavingTask] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-
-  useEffect(() => {
-    let isCurrentRequest = true;
-
-    async function loadTask() {
-      try {
-        setIsLoadingTask(true);
-        setErrorMessage("");
-
-        const data = await getTask(projectId, taskId);
-
-        if (isCurrentRequest) {
-          const assignees = data.task.assignees ?? [];
-
-          setTitle(data.task.title);
-          setDescription(data.task.description ?? "");
-          setDueDate(formatDateInputValue(data.task.dueDate));
-          setStatus(data.task.status);
-          setAssigneeIds(assignees.map((taskAssignee) => taskAssignee.user.id));
-          setAssignee(
-            assignees
-              .map((taskAssignee) => taskAssignee.user.name || taskAssignee.user.email)
-              .join(", ")
-          );
-        }
-      } catch (error) {
-        if (isCurrentRequest) {
-          console.error("Impossible de charger la tâche à modifier.", error);
-          setErrorMessage("Impossible de charger la tâche à modifier.");
-        }
-      } finally {
-        if (isCurrentRequest) {
-          setIsLoadingTask(false);
-        }
-      }
-    }
-
-    loadTask();
-
-    return () => {
-      isCurrentRequest = false;
-    };
-  }, [projectId, taskId]);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    try {
-      setIsSavingTask(true);
-      setErrorMessage("");
-
-      await updateTask(projectId, taskId, {
-        title: title.trim(),
-        description: description.trim(),
-        dueDate: dueDate || null,
-        status,
-        assigneeIds,
-      });
-      await onSaved();
-      onClose();
-    } catch (error) {
-      console.error("Impossible d'enregistrer la tâche.", error);
-      setErrorMessage("Impossible d'enregistrer la tâche.");
-    } finally {
-      setIsSavingTask(false);
-    }
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 px-5 py-8">
-      <section
-        aria-labelledby="edit-task-title"
-        aria-modal="true"
-        role="dialog"
-        className="relative w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[77px] pt-[81px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
-      >
-        <button
-          type="button"
-          aria-label="Fermer la modale"
-          className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
-          onClick={onClose}
-        >
-          <Image
-            src="/img/cross-black.png"
-            alt=""
-            width={20}
-            height={20}
-            aria-hidden="true"
-            className="block h-5 w-5"
-          />
-        </button>
-
-        <form className="flex flex-col" onSubmit={handleSubmit}>
-          <h2
-            id="edit-task-title"
-            className="text-[25px] font-semibold leading-tight text-[var(--color-heading)]"
-          >
-            Modifier
-          </h2>
-
-          {isLoadingTask ? (
-            <p className="mt-[42px] text-sm text-[var(--color-muted)]">
-              Chargement de la tâche...
-            </p>
-          ) : null}
-
-          {errorMessage ? (
-            <p className="mt-[20px] text-sm text-[var(--color-error-text)]">
-              {errorMessage}
-            </p>
-          ) : null}
-
-          <label className="mt-[42px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Titre
-            <input
-              type="text"
-              value={title}
-              disabled={isLoadingTask || isSavingTask}
-              onChange={(event) => setTitle(event.target.value)}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Description
-            <input
-              type="text"
-              value={description}
-              disabled={isLoadingTask || isSavingTask}
-              onChange={(event) => setDescription(event.target.value)}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Échéance
-            <input
-              type="date"
-              value={dueDate}
-              disabled={isLoadingTask || isSavingTask}
-              onChange={(event) => setDueDate(event.target.value)}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <label className="mt-[26px] flex flex-col gap-[7px] text-sm leading-[1.2] text-[var(--color-ink)]">
-            Assigné à
-            <input
-              type="text"
-              value={assignee}
-              readOnly
-              disabled={isLoadingTask || isSavingTask}
-              className="h-[53px] rounded border border-[var(--color-field-line)] bg-white px-4 text-sm text-[var(--color-muted)] outline-none focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)]"
-            />
-          </label>
-
-          <div className="mt-[26px]">
-            <p className="text-sm leading-[1.2] text-[var(--color-ink)]">
-              Statut :
-            </p>
-            <div className="mt-[16px] flex flex-wrap gap-3">
-              {editableStatuses.map((statusOption) => (
-                <button
-                  key={statusOption.value}
-                  type="button"
-                  aria-pressed={status === statusOption.value}
-                  className={`rounded-full outline-offset-2 ${
-                    status === statusOption.value
-                      ? "outline outline-2 outline-[var(--color-brand)]"
-                      : ""
-                  }`}
-                  onClick={() => setStatus(statusOption.value)}
-                  disabled={isLoadingTask || isSavingTask}
-                >
-                  <TaskStatusBadge status={statusOption.status} />
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoadingTask || isSavingTask || title.trim().length < 2}
-            className="mt-[56px] w-[244px]"
-          >
-            {isSavingTask ? "Enregistrement..." : "Enregistrer"}
-          </Button>
-        </form>
-      </section>
-    </div>
-  );
-}
-
-function CreateTaskAiModal({ onClose }: { onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-5 py-8">
-      <section
-        aria-labelledby="create-task-ai-title"
-        aria-modal="true"
-        role="dialog"
-        className="relative flex min-h-[797px] w-full max-w-[598px] flex-col rounded-lg bg-white px-[52px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-[640px] max-[640px]:px-6 max-[640px]:py-14"
-      >
-        <button
-          type="button"
-          aria-label="Fermer la modale"
-          className="absolute right-[37px] top-[37px] flex h-5 w-5 cursor-pointer items-center justify-center"
-          onClick={onClose}
-        >
-          <Image
-            src="/img/cross-black.png"
-            alt=""
-            width={20}
-            height={20}
-            aria-hidden="true"
-            className="block h-5 w-5"
-          />
-        </button>
-
-        <h2
-          id="create-task-ai-title"
-          className="flex items-center gap-[10px] text-[25px] font-semibold leading-tight text-[var(--color-heading)]"
-        >
-          <Image
-            src="/img/IA-icon-orange.png"
-            alt=""
-            width={19}
-            height={19}
-            aria-hidden="true"
-            className="block h-[19px] w-[19px] flex-none"
-          />
-          Créer une tâche
-        </h2>
-
-        <div className="mt-auto rounded-full bg-[#f9fafb] px-[32px] py-[18px]">
-          <div className="flex items-center gap-4">
-            <input
-              type="text"
-              aria-label="Décrire les tâches à ajouter"
-              placeholder="Décrivez les tâches que vous souhaitez ajouter..."
-              className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink)]"
-            />
-            <button
-              type="button"
-              aria-label="Envoyer la demande"
-              className="flex h-[24px] w-[24px] flex-none items-center justify-center rounded-full bg-[var(--color-brand)] text-white"
-            >
-              <Image
-                src="/img/IA-icon-white.svg"
-                alt=""
-                width={12}
-                height={12}
-                aria-hidden="true"
-                className="block h-3 w-3"
-              />
-            </button>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
 function matchesTaskFilters(
   task: Task,
   searchText: string,
@@ -1020,9 +520,18 @@ export default function ProjectPage() {
   const [isStatusOpen, setIsStatusOpen] = useState(false);
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = useState(false);
   const [isCreateTaskAiModalOpen, setIsCreateTaskAiModalOpen] = useState(false);
+  const [isAiGeneratedTasksModalOpen, setIsAiGeneratedTasksModalOpen] =
+    useState(false);
+  const [generatedTasks, setGeneratedTasks] = useState<AiGeneratedTask[]>(
+    aiGeneratedTasks
+  );
+  const [isGeneratingTasksWithAi, setIsGeneratingTasksWithAi] = useState(false);
+  const [isAddingGeneratedTasks, setIsAddingGeneratedTasks] = useState(false);
+  const [aiGenerationError, setAiGenerationError] = useState("");
+  const [addGeneratedTasksError, setAddGeneratedTasksError] = useState("");
   const [searchText, setSearchText] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<TaskStatus | "all">("all");
-  const [isCalendarSortActive, setIsCalendarSortActive] = useState(false);
+  const [activeTaskView, setActiveTaskView] = useState<TaskView>("list");
   const [project, setProject] = useState<Project | null>(null);
   const [isLoadingProject, setIsLoadingProject] = useState(true);
   const [isEditingProjectTitle, setIsEditingProjectTitle] = useState(false);
@@ -1046,10 +555,18 @@ export default function ProjectPage() {
   const matchingTasks = tasks.filter((task) =>
     matchesTaskFilters(task, searchText, selectedStatus)
   );
-  const filteredTasks = sortTasksByDueDate(
-    matchingTasks,
-    isCalendarSortActive ? "desc" : "asc"
-  );
+  // en vue calendrier on garde les cartes existantes mais triées par échéance
+  const filteredTasks =
+    activeTaskView === "calendar"
+      ? sortTasksByDueDate(matchingTasks, "asc")
+      : matchingTasks;
+  const taskViewButtonClass =
+    "inline-flex h-[45px] min-w-[105px] cursor-pointer items-center justify-center gap-[10px] rounded-lg px-[17px] text-center text-sm leading-none text-[var(--color-brand)] outline-none transition-colors duration-150";
+  const activeTaskViewButtonClass =
+    "bg-[var(--color-brand-soft)]";
+  const inactiveTaskViewButtonClass =
+    "bg-white hover:bg-[var(--color-brand-soft)]";
+  // construit l'affichage des contributeurs depuis le projet chargé par l'api
   const displayedProjectMembers: ProjectMember[] = project
     ? [
         {
@@ -1067,6 +584,7 @@ export default function ProjectPage() {
         }),
       ]
     : projectMembers;
+  // fournit aux modales les utilisateurs disponibles dans le champ assigné à
   const taskAssigneeOptions: TaskAssigneeOption[] = project
     ? [
         {
@@ -1149,6 +667,70 @@ export default function ProjectPage() {
   function closeEditTaskModal() {
     // retire le paramètre pour éviter de rouvrir la modale au rafraîchissement
     router.replace(pathname, { scroll: false });
+  }
+
+  function showAiGeneratedTasks() {
+    setIsCreateTaskAiModalOpen(false);
+    setIsAiGeneratedTasksModalOpen(true);
+  }
+
+  async function generateTasksWithAi(prompt: string) {
+    // garde la génération ia dans la page pour partager le résultat entre les modales
+    if (isGeneratingTasksWithAi) {
+      return false;
+    }
+
+    try {
+      setIsGeneratingTasksWithAi(true);
+      setAiGenerationError("");
+      setAddGeneratedTasksError("");
+
+      const tasksGeneratedByAi = await requestAiGeneratedTasks(prompt);
+
+      setGeneratedTasks(tasksGeneratedByAi);
+      return true;
+    } catch (error) {
+      setAiGenerationError(
+        error instanceof Error
+          ? error.message
+          : "Impossible de générer les tâches."
+      );
+      return false;
+    } finally {
+      setIsGeneratingTasksWithAi(false);
+    }
+  }
+
+  async function addGeneratedTasksToProject() {
+    // transforme les tâches prévisualisées en vraies tâches du projet
+    if (generatedTasks.length === 0 || isAddingGeneratedTasks) {
+      return;
+    }
+
+    try {
+      setIsAddingGeneratedTasks(true);
+      setAddGeneratedTasksError("");
+
+      // chaque tâche validée est créée côté api avec le statut à faire
+      for (const generatedTask of generatedTasks) {
+        await createTask(params.id, {
+          title: generatedTask.title,
+          description: generatedTask.description,
+          dueDate: null,
+          status: "TODO",
+          assigneeIds: [],
+        });
+      }
+
+      await loadProjectTasks();
+      setGeneratedTasks([]);
+      setIsAiGeneratedTasksModalOpen(false);
+    } catch (error) {
+      console.error("Impossible d'ajouter les tâches générées.", error);
+      setAddGeneratedTasksError("Impossible d'ajouter les tâches générées.");
+    } finally {
+      setIsAddingGeneratedTasks(false);
+    }
   }
 
   function startProjectTitleEdition() {
@@ -1323,7 +905,13 @@ export default function ProjectPage() {
           <div className="flex items-center gap-[14px] max-[900px]:flex-wrap">
             <button
               type="button"
-              className="inline-flex h-[45px] items-center gap-[10px] rounded-lg bg-[var(--color-brand-soft)] px-[17px] text-sm leading-none text-[var(--color-brand)]"
+              aria-pressed={activeTaskView === "list"}
+              className={`${taskViewButtonClass} ${
+                activeTaskView === "list"
+                  ? activeTaskViewButtonClass
+                  : inactiveTaskViewButtonClass
+              }`}
+              onClick={() => setActiveTaskView("list")}
             >
               <Image
                 src="/img/chips-mes-taches.svg"
@@ -1337,11 +925,13 @@ export default function ProjectPage() {
             </button>
             <button
               type="button"
-              aria-pressed={isCalendarSortActive}
-              className={`inline-flex h-[45px] items-center gap-[10px] rounded-lg px-[17px] text-sm leading-none text-[var(--color-brand)] ${
-                isCalendarSortActive ? "bg-[var(--color-brand-soft)]" : "bg-white"
+              aria-pressed={activeTaskView === "calendar"}
+              className={`${taskViewButtonClass} ${
+                activeTaskView === "calendar"
+                  ? activeTaskViewButtonClass
+                  : inactiveTaskViewButtonClass
               }`}
-              onClick={() => setIsCalendarSortActive(!isCalendarSortActive)}
+              onClick={() => setActiveTaskView("calendar")}
             >
               <InputIcon
                 src="/img/input-icon-calendar-orange.png"
@@ -1453,10 +1043,31 @@ export default function ProjectPage() {
         />
       ) : null}
       {isCreateTaskAiModalOpen ? (
-        <CreateTaskAiModal onClose={() => setIsCreateTaskAiModalOpen(false)} />
+        <CreateTaskAiModal
+          generationError={aiGenerationError}
+          isGeneratingTasks={isGeneratingTasksWithAi}
+          onClose={() => setIsCreateTaskAiModalOpen(false)}
+          onGenerateTasks={generateTasksWithAi}
+          onShowResult={showAiGeneratedTasks}
+        />
+      ) : null}
+      {isAiGeneratedTasksModalOpen ? (
+        <AiGeneratedTasksModal
+          addError={addGeneratedTasksError}
+          generatedTasks={generatedTasks}
+          generationError={aiGenerationError}
+          isAddingTasks={isAddingGeneratedTasks}
+          isGeneratingTasks={isGeneratingTasksWithAi}
+          onAddTasks={addGeneratedTasksToProject}
+          onGeneratedTasksChange={setGeneratedTasks}
+          onGenerateTasks={generateTasksWithAi}
+          onClose={() => setIsAiGeneratedTasksModalOpen(false)}
+        />
       ) : null}
       {taskToEditId ? (
+        // l'id vient de l'url, ce qui relie les trois points à la modale
         <EditTaskModal
+          assigneeOptions={taskAssigneeOptions}
           projectId={params.id}
           taskId={taskToEditId}
           onClose={closeEditTaskModal}
