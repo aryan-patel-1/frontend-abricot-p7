@@ -15,7 +15,6 @@ export default function Chips({ className = "" }: ChipsProps) {
       alt=""
       width={16}
       height={16}
-      aria-hidden="true"
       className={`block flex-none ${className}`}
     />
   );

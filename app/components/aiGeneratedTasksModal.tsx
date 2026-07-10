@@ -48,12 +48,11 @@ function AiGeneratedTaskCard({
             alt=""
             width={16}
             height={14}
-            aria-hidden="true"
             className="h-[14px] w-4 flex-none"
           />
           Supprimer
         </button>
-        <span className="h-[17px] w-px bg-[var(--color-divider)]" aria-hidden="true" />
+        <span className="h-[17px] w-px bg-[var(--color-divider)]" />
         <button
           type="button"
           className="inline-flex items-center gap-[7px] text-left"
@@ -64,7 +63,6 @@ function AiGeneratedTaskCard({
             alt=""
             width={14}
             height={14}
-            aria-hidden="true"
             className="h-[14px] w-[14px] flex-none"
           />
           Modifier
@@ -114,7 +112,7 @@ export default function AiGeneratedTasksModal({
         aria-labelledby="ai-generated-tasks-title"
         aria-modal="true"
         role="dialog"
-        className="relative flex min-h-[797px] w-full max-w-[598px] flex-col rounded-lg bg-white px-[52px] pb-[39px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-[640px] max-[640px]:px-6 max-[640px]:py-14"
+        className="relative flex max-h-[calc(100dvh-64px)] min-h-[640px] w-full max-w-[598px] flex-col overflow-y-auto rounded-lg bg-white px-[52px] pb-[39px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-[520px] max-[640px]:px-6 max-[640px]:py-14"
       >
         <button
           type="button"
@@ -127,7 +125,6 @@ export default function AiGeneratedTasksModal({
             alt=""
             width={20}
             height={20}
-            aria-hidden="true"
             className="block h-5 w-5"
           />
         </button>
@@ -141,7 +138,6 @@ export default function AiGeneratedTasksModal({
             alt=""
             width={19}
             height={19}
-            aria-hidden="true"
             className="block h-[19px] w-[19px] flex-none"
           />
           Vos tâches...
@@ -172,7 +168,7 @@ export default function AiGeneratedTasksModal({
 
         <Button
           type="button"
-          className="mx-auto mt-[24px] w-[181px]"
+          className="mx-auto mt-[24px] w-[181px] max-[520px]:w-full"
           disabled={tasksToDisplay.length === 0 || isAddingTasks}
           onClick={onAddTasks}
         >

@@ -6,7 +6,7 @@ export default function Footer() {
     <footer className="flex h-[68px] w-full flex-none items-center justify-between bg-white py-0 pl-[30px] pr-[55px] max-sm:px-6">
       <Image
         src="/img/logo-noir.svg"
-        alt="Abricot"
+        alt=""
         width={253}
         height={33}
         className="block h-auto w-[102px]"

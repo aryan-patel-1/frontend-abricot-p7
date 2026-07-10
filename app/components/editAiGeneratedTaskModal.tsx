@@ -55,7 +55,6 @@ export default function EditAiGeneratedTaskModal({
             alt=""
             width={20}
             height={20}
-            aria-hidden="true"
             className="block h-5 w-5"
           />
         </button>
@@ -94,7 +93,7 @@ export default function EditAiGeneratedTaskModal({
             className={`mt-[56px] w-[244px] ${
               canSave
                 ? ""
-                : "bg-[#e5e7eb] text-[#9CA3AF] hover:bg-[#e5e7eb] disabled:opacity-100"
+                : "bg-[#e5e7eb] text-[var(--color-muted)] hover:bg-[#e5e7eb] disabled:opacity-100"
             }`}
           >
             Enregistrer

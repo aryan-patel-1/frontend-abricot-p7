@@ -40,7 +40,7 @@ export default function CardProject({ onEdit, project }: CardProjectProps) {
   const team = [project.owner, ...project.members.map((member) => member.user)];
 
   return (
-    <article className="relative min-h-[351px] rounded-lg border border-[var(--color-line)] bg-white transition-[border-color,box-shadow] duration-150 hover:border-[var(--color-brand)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)]">
+    <article className="relative min-h-[351px] rounded-lg border border-[var(--color-line)] bg-white transition-[border-color,box-shadow] duration-150 hover:border-[var(--color-brand)] hover:shadow-[0_10px_26px_rgba(0,0,0,0.08)] max-[520px]:min-h-[320px]">
       {onEdit ? (
         <button
           type="button"
@@ -54,7 +54,7 @@ export default function CardProject({ onEdit, project }: CardProjectProps) {
 
       <Link
         href={`/main/projects/${project.id}`}
-        className="flex min-h-[351px] flex-col px-[34px] pb-[31px] pt-[31px] text-inherit no-underline"
+        className="flex min-h-[351px] flex-col px-[34px] pb-[31px] pt-[31px] text-inherit no-underline max-[520px]:min-h-[320px] max-[520px]:px-5"
       >
         <h2 className="pr-12 text-xl font-semibold leading-tight text-[var(--color-heading)]">
           {project.name}
@@ -63,8 +63,8 @@ export default function CardProject({ onEdit, project }: CardProjectProps) {
           {project.description}
         </p>
 
-        <div className="mt-[58px]">
-          <div className="flex items-center justify-between text-xs leading-none">
+        <div className="mt-[58px] max-[520px]:mt-10">
+          <div className="flex items-center justify-between text-sm leading-none">
             <span className="text-[var(--color-muted)]">Progression</span>
             <span className="text-[var(--color-ink)]">{progress}%</span>
           </div>
@@ -74,27 +74,27 @@ export default function CardProject({ onEdit, project }: CardProjectProps) {
               style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="mt-[10px] text-[11px] leading-none text-[var(--color-muted)]">
+          <p className="mt-[10px] text-[13px] leading-none text-[var(--color-muted)]">
             {completedTasks}/{project._count.tasks} tâches terminées
           </p>
         </div>
 
         <div className="mt-auto">
-          <p className="text-[11px] leading-none text-[var(--color-muted)]">
+          <p className="text-[13px] leading-none text-[var(--color-muted)]">
             Équipe ({team.length})
           </p>
-          <div className="mt-[14px] flex items-center">
-            <span className="inline-flex h-[27px] w-[27px] items-center justify-center rounded-full bg-[var(--color-brand-soft)] text-[11px] leading-none text-[var(--color-ink)]">
+          <div className="mt-[14px] flex flex-wrap items-center gap-y-2">
+            <span className="inline-flex h-[32px] w-[32px] items-center justify-center rounded-full bg-[var(--color-brand-soft)] text-[13px] leading-none text-[var(--color-ink)]">
               {getInitials(project.owner.name)}
             </span>
-            <span className="ml-[7px] inline-flex h-[27px] items-center justify-center rounded-full bg-[var(--color-brand-soft)] px-[15px] text-sm leading-none text-[var(--color-brand)]">
+            <span className="ml-[7px] inline-flex h-[32px] items-center justify-center rounded-full bg-[var(--color-brand-soft)] px-[16px] text-sm leading-none text-[var(--color-brand)]">
               Propriétaire
             </span>
             {/* décale légèrement les avatars des membres pour créer un groupe compact */}
             {project.members.map((member, memberIndex) => (
               <span
                 key={member.id}
-                className={`inline-flex h-[24px] w-[24px] items-center justify-center rounded-full bg-[#e6e9ee] text-[10px] leading-none text-[var(--color-ink)] ${
+                className={`inline-flex h-[30px] w-[30px] items-center justify-center rounded-full bg-[#e6e9ee] text-xs leading-none text-[var(--color-ink)] ${
                   memberIndex === 0 ? "ml-[7px]" : "-ml-[3px]"
                 }`}
               >

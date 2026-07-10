@@ -60,6 +60,10 @@ export type AddContributorResponse = {
   contributor: ProjectMember;
 };
 
+export type DeleteProjectResponse = {
+  projectId: string;
+};
+
 export type SearchUsersResponse = {
   users: AuthUser[];
 };
@@ -87,6 +91,13 @@ export function updateProject(projectId: string, payload: UpdateProjectPayload) 
   return apiRequest<ProjectResponse>(`/projects/${projectId}`, {
     method: "PUT",
     body: JSON.stringify(payload),
+  });
+}
+
+// supprime un projet accessible à l'administrateur connecté
+export function deleteProject(projectId: string) {
+  return apiRequest<DeleteProjectResponse>(`/projects/${projectId}`, {
+    method: "DELETE",
   });
 }
 

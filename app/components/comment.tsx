@@ -11,7 +11,6 @@ export default function Comment({ className = "" }: CommentProps) {
       alt=""
       width={15}
       height={15}
-      aria-hidden="true"
       className={`block flex-none ${className}`}
     />
   );

@@ -46,12 +46,12 @@ export default function LoginPage() {
   return (
     <main className="flex min-h-dvh w-full bg-[var(--color-surface-auth)] font-[Ag,Arial,Helvetica,sans-serif] text-[var(--color-ink)] max-[900px]:block">
       <section
-        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[var(--color-surface-auth)] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6"
+        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[var(--color-surface-auth)] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6 max-[480px]:pb-10"
         aria-label="Formulaire de connexion"
       >
         <Logo className="mt-[94px] max-[480px]:mt-14 max-[480px]:w-[min(253px,78vw)]" />
 
-        <div className="mt-[207px] flex w-[282px] flex-col items-center max-[480px]:mt-[140px] max-[480px]:w-full">
+        <div className="mt-[207px] flex w-[282px] flex-col items-center max-[900px]:mt-[140px] max-[480px]:mt-20 max-[480px]:w-full">
           <h1 className="mb-[34px] text-[40px] font-bold leading-[1.1] text-[var(--color-brand)]">
             Connexion
           </h1>
@@ -88,7 +88,7 @@ export default function LoginPage() {
             ) : null}
 
             <Button
-              className="mt-3 w-[250px] self-center"
+              className="mt-3 w-[250px] self-center max-[480px]:w-full"
               disabled={isSubmitting}
               type="submit"
             >
@@ -101,7 +101,7 @@ export default function LoginPage() {
           </AppLink>
         </div>
 
-        <p className="absolute bottom-[93px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[var(--color-ink)] max-[480px]:bottom-12">
+        <p className="absolute bottom-[93px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[var(--color-ink)] max-[480px]:static max-[480px]:mt-auto max-[480px]:pt-12">
           Pas encore de compte ?{" "}
           <AppLink className="ml-2" href="/register">
             Créer un compte
@@ -111,7 +111,6 @@ export default function LoginPage() {
 
       <section
         className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden"
-        aria-hidden="true"
       >
         <Image
           src="/img/login-img.webp"

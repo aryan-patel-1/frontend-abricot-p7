@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useSyncExternalStore } from "react";
 
 import MenuItems from "./menuItems";
@@ -42,24 +41,22 @@ export default function Menu({ pathname }: MenuProps) {
 
   return (
     // affiche le menu du haut
-    <header className="grid h-[94px] w-full flex-none grid-cols-[1fr_auto_1fr] items-center bg-white px-6 shadow-[var(--shadow-menu)] max-[900px]:h-auto max-[900px]:min-h-[94px] max-[900px]:grid-cols-[1fr_auto] max-[900px]:gap-6 max-[900px]:py-[18px]">
-      <Link
+    <header className="grid h-[94px] w-full flex-none grid-cols-[1fr_auto_1fr] items-center bg-white px-6 shadow-[var(--shadow-menu)] max-[900px]:h-auto max-[900px]:min-h-[94px] max-[900px]:grid-cols-[1fr_auto] max-[900px]:gap-6 max-[900px]:py-[18px] max-[520px]:px-4">
+      <div
         className="inline-flex items-center justify-self-start"
-        href="/main/dashboard"
-        aria-label="Abricot"
       >
         <Image
           src="/img/logo-orange.svg"
           alt="Abricot"
           width={253}
           height={33}
-          className="block h-auto w-[146px]"
+          className="block h-auto w-[146px] max-[520px]:w-[122px]"
           preload
         />
-      </Link>
+      </div>
 
       <nav
-        className="flex items-center justify-center gap-32 max-[900px]:col-span-full max-[900px]:row-start-2 max-[900px]:justify-start max-[900px]:gap-8 max-[520px]:flex-col max-[520px]:items-start max-[520px]:gap-[18px]"
+        className="flex min-w-0 items-center justify-center gap-32 max-[900px]:col-span-full max-[900px]:row-start-2 max-[900px]:w-full max-[900px]:justify-center max-[900px]:gap-8 max-[520px]:gap-3"
         aria-label="navigation principale"
       >
         <MenuItems
@@ -76,7 +73,7 @@ export default function Menu({ pathname }: MenuProps) {
         />
       </nav>
 
-      <div className="justify-self-end">
+      <div className="justify-self-end max-[520px]:self-start">
         <UserIcon
           active={pathname.startsWith("/main/account")}
           name={user?.name || undefined}

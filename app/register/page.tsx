@@ -51,12 +51,12 @@ export default function RegisterPage() {
   return (
     <main className="flex min-h-dvh w-full bg-[var(--color-surface-auth)] font-[Ag,Arial,Helvetica,sans-serif] text-[var(--color-ink)] max-[900px]:block">
       <section
-        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[var(--color-surface-auth)] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6"
+        className="relative flex min-h-dvh w-[562px] flex-[0_0_562px] flex-col items-center bg-[var(--color-surface-auth)] max-[900px]:w-full max-[480px]:flex-auto max-[480px]:px-6 max-[480px]:pb-10"
         aria-label="Formulaire d'inscription"
       >
         <Logo className="mt-[113px] max-[480px]:mt-14 max-[480px]:w-[min(253px,78vw)]" />
 
-        <div className="mt-[170px] flex w-[282px] flex-col items-center max-[480px]:mt-[140px] max-[480px]:w-full">
+        <div className="mt-[170px] flex w-[282px] flex-col items-center max-[900px]:mt-[120px] max-[480px]:mt-16 max-[480px]:w-full">
           <h1 className="mb-[34px] text-[40px] font-bold leading-[1.1] text-[var(--color-brand)]">
             Inscription
           </h1>
@@ -103,7 +103,7 @@ export default function RegisterPage() {
             ) : null}
 
             <Button
-              className="mt-3 w-[218px] self-center"
+              className="mt-3 w-[218px] self-center max-[480px]:w-full"
               disabled={isSubmitting}
               type="submit"
             >
@@ -112,7 +112,7 @@ export default function RegisterPage() {
           </form>
         </div>
 
-        <p className="absolute bottom-[109px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[var(--color-ink)] max-[480px]:bottom-12">
+        <p className="absolute bottom-[109px] left-0 w-full text-center text-sm font-normal leading-[1.2] text-[var(--color-ink)] max-[480px]:static max-[480px]:mt-auto max-[480px]:pt-12">
           Déjà inscrit ?{" "}
           <AppLink className="ml-2" href="/login">
             Se connecter
@@ -122,7 +122,6 @@ export default function RegisterPage() {
 
       <section
         className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden"
-        aria-hidden="true"
       >
         <Image
           src="/img/signup-img.webp"

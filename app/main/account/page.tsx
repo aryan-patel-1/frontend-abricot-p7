@@ -54,58 +54,60 @@ export default function AccountPage() {
 
   return (
     // affiche les informations du compte connecté
-    <section className="mx-auto mt-[48px] w-full max-w-[1408px] rounded-lg border border-[var(--color-line)] bg-white px-8 py-[42px] max-[1440px]:mx-4 max-[760px]:mx-5 max-[760px]:w-auto max-[760px]:px-5">
-      <div className="mb-[43px]">
-        <h1 className="text-xl font-semibold leading-tight text-[var(--color-ink)]">
-          Mon compte
-        </h1>
-        <p className="mt-[10px] text-base leading-tight text-[var(--color-muted)]">
-          {displayName}
-        </p>
-      </div>
-
-      <form className="flex flex-col gap-[25px]">
-        <TextInput
-          id="account-last-name"
-          label="Nom"
-          readOnly
-          type="text"
-          value={lastName}
-        />
-        <TextInput
-          id="account-first-name"
-          label="Prénom"
-          readOnly
-          type="text"
-          value={firstName}
-        />
-        <TextInput
-          id="account-email"
-          label="Email"
-          readOnly
-          type="email"
-          value={user?.email ?? ""}
-        />
-        <TextInput
-          id="account-password"
-          label="Mot de passe"
-          readOnly
-          type="text"
-          value="••••••••••••"
-        />
-        <div className="mt-[17px] flex flex-wrap gap-4">
-          <Button type="button" className="w-[242px] max-[480px]:w-full">
-            Modifier les informations
-          </Button>
-          <Button
-            type="button"
-            className="w-[242px] max-[480px]:w-full"
-            onClick={handleLogout}
-          >
-            Se déconnecter
-          </Button>
+    <div className="mx-auto w-full max-w-[1408px] px-4 pb-[57px] pt-[48px] max-[900px]:px-5 max-[900px]:pt-10 max-[520px]:pb-10">
+      <section className="w-full rounded-lg border border-[var(--color-line)] bg-white px-8 py-[42px] max-[900px]:px-5">
+        <div className="mb-[43px]">
+          <h1 className="text-xl font-semibold leading-tight text-[var(--color-ink)]">
+            Mon compte
+          </h1>
+          <p className="mt-[10px] text-base leading-tight text-[var(--color-muted)]">
+            {displayName}
+          </p>
         </div>
-      </form>
-    </section>
+
+        <form className="flex flex-col gap-[25px]">
+          <TextInput
+            id="account-last-name"
+            label="Nom"
+            readOnly
+            type="text"
+            value={lastName}
+          />
+          <TextInput
+            id="account-first-name"
+            label="Prénom"
+            readOnly
+            type="text"
+            value={firstName}
+          />
+          <TextInput
+            id="account-email"
+            label="Email"
+            readOnly
+            type="email"
+            value={user?.email ?? ""}
+          />
+          <TextInput
+            id="account-password"
+            label="Mot de passe"
+            readOnly
+            type="text"
+            value="••••••••••••"
+          />
+          <div className="mt-[17px] flex flex-wrap gap-4">
+            <Button type="button" className="w-[242px] max-[480px]:w-full">
+              Modifier les informations
+            </Button>
+            <Button
+              type="button"
+              className="w-[242px] max-[480px]:w-full"
+              onClick={handleLogout}
+            >
+              Se déconnecter
+            </Button>
+          </div>
+        </form>
+      </section>
+    </div>
   );
 }

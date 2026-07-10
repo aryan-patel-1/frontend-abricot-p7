@@ -36,7 +36,7 @@ export default function CreateTaskAiModal({
         aria-labelledby="create-task-ai-title"
         aria-modal="true"
         role="dialog"
-        className="relative flex min-h-[797px] w-full max-w-[598px] flex-col rounded-lg bg-white px-[52px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-[640px] max-[640px]:px-6 max-[640px]:py-14"
+        className="relative flex max-h-[calc(100dvh-64px)] min-h-[640px] w-full max-w-[598px] flex-col overflow-y-auto rounded-lg bg-white px-[52px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:min-h-[520px] max-[640px]:px-6 max-[640px]:py-14"
       >
         <button
           type="button"
@@ -49,7 +49,6 @@ export default function CreateTaskAiModal({
             alt=""
             width={20}
             height={20}
-            aria-hidden="true"
             className="block h-5 w-5"
           />
         </button>
@@ -63,7 +62,6 @@ export default function CreateTaskAiModal({
             alt=""
             width={19}
             height={19}
-            aria-hidden="true"
             className="block h-[19px] w-[19px] flex-none"
           />
           Créer une tâche

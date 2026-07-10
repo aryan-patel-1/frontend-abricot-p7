@@ -1,5 +1,5 @@
 import { apiRequest } from "./api";
-import { mockAssignedTasks } from "../mocks/mocksData";
+import { mockAssignedTasks } from "../mocks/mockAssignedTasks";
 import { getData } from "./dataProvider";
 
 export type DashboardTaskStatus = "TODO" | "IN_PROGRESS" | "DONE";

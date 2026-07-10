@@ -133,7 +133,7 @@ export default function EditTaskModal({
         aria-labelledby="edit-task-title"
         aria-modal="true"
         role="dialog"
-        className="relative w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[77px] pt-[81px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
+        className="relative max-h-[calc(100dvh-64px)] w-full max-w-[598px] overflow-y-auto rounded-lg bg-white px-[73px] pb-[77px] pt-[81px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
       >
         <button
           type="button"
@@ -146,7 +146,6 @@ export default function EditTaskModal({
             alt=""
             width={20}
             height={20}
-            aria-hidden="true"
             className="block h-5 w-5"
           />
         </button>
@@ -226,7 +225,6 @@ export default function EditTaskModal({
                 alt=""
                 width={15}
                 height={8}
-                aria-hidden="true"
                 className="block h-2 w-[15px] flex-none"
               />
             </button>
@@ -286,7 +284,7 @@ export default function EditTaskModal({
           <Button
             type="submit"
             disabled={isLoadingTask || isSavingTask || title.trim().length < 2}
-            className="mt-[56px] w-[244px]"
+            className="mt-[56px] w-[244px] max-[520px]:w-full"
           >
             {isSavingTask ? "Enregistrement..." : "Enregistrer"}
           </Button>

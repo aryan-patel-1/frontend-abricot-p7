@@ -7,13 +7,13 @@
   --color-surface-main: #f9fafb;
   --color-ink: #111111;
   --color-heading: #222222;
-  --color-muted: #667085;
-  --color-muted-icon: #6b7280;
-  --color-divider: #9ca3af;
+  --color-muted: #344054;
+  --color-muted-icon: #475467;
+  --color-divider: #475467;
   --color-line: #d9dde4;
   --color-field-line: #d9dde3;
-  --color-brand: #d3590b;
-  --color-brand-hover: #a94308;
+  --color-brand: #ad4709;
+  --color-brand-hover: #8f3706;
   --color-brand-soft: #fde3d3;
   --color-brand-soft-hover: #f8d4bd;
   --color-action: #1f1f1f;
@@ -21,11 +21,11 @@
   --color-error-bg: #fff1f0;
   --color-error-text: #9f1d12;
   --color-todo-bg: #ffdede;
-  --color-todo-text: #ff3b3b;
+  --color-todo-text: #8f1d13;
   --color-progress-bg: #ffe8bd;
-  --color-progress-text: #f08900;
+  --color-progress-text: #783900;
   --color-done-bg: #e5fff0;
-  --color-done-text: #18bd63;
+  --color-done-text: #065f35;
 
   --shadow-menu: 0 4px 14px rgba(0, 0, 0, 0.14);
   --shadow-input-focus: 0 0 0 3px rgba(211, 89, 11, 0.14);

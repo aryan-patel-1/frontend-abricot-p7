@@ -89,12 +89,12 @@ export default function CreateTaskModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-5 py-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/30 px-5 py-8">
       <section
         aria-labelledby="create-task-title"
         aria-modal="true"
         role="dialog"
-        className="relative w-full max-w-[598px] rounded-lg bg-white px-[73px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
+        className="relative max-h-[calc(100dvh-64px)] w-full max-w-[598px] overflow-y-auto rounded-lg bg-white px-[73px] pb-[78px] pt-[82px] shadow-[0_20px_45px_rgba(0,0,0,0.18)] max-[640px]:px-6 max-[640px]:py-14"
       >
         <button
           type="button"
@@ -107,7 +107,6 @@ export default function CreateTaskModal({
             alt=""
             width={20}
             height={20}
-            aria-hidden="true"
             className="block h-5 w-5"
           />
         </button>
@@ -190,7 +189,6 @@ export default function CreateTaskModal({
                 alt=""
                 width={15}
                 height={8}
-                aria-hidden="true"
                 className="block h-2 w-[15px] flex-none"
               />
             </button>
@@ -256,10 +254,10 @@ export default function CreateTaskModal({
           <Button
             type="submit"
             disabled={!canCreateTask || isCreatingTask}
-            className={`mt-[56px] w-[201px] text-sm ${
+            className={`mt-[56px] w-[201px] text-sm max-[520px]:w-full ${
               canCreateTask
                 ? ""
-                : "bg-[#e5e7eb] text-[#9CA3AF] hover:bg-[#e5e7eb] disabled:opacity-100"
+                : "bg-[#e5e7eb] text-[var(--color-muted)] hover:bg-[#e5e7eb] disabled:opacity-100"
             }`}
           >
             {isCreatingTask ? "Création..." : "+ Ajouter une tâche"}

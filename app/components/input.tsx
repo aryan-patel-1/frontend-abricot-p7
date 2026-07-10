@@ -57,7 +57,6 @@ export default function TextInput({
           alt=""
           width={14}
           height={14}
-          aria-hidden="true"
           className="block h-[14px] w-[14px] flex-none"
         />
       ) : null}
@@ -80,7 +79,6 @@ export function InputIcon({
       alt=""
       width={15}
       height={17}
-      aria-hidden="true"
       className={`block flex-none ${className}`}
     />
   );

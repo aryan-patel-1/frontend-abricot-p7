@@ -30,7 +30,6 @@ function ProjectIcon() {
       alt=""
       width={18}
       height={14}
-      aria-hidden="true"
       className="block h-[14px] w-[18px] flex-none"
     />
   );
@@ -63,7 +62,7 @@ export function TaskMeta({
         <ProjectIcon />
         <span>{projectName}</span>
       </span>
-      <span className="h-[17px] w-px bg-[var(--color-divider)]" aria-hidden="true" />
+      <span className="h-[17px] w-px bg-[var(--color-divider)]" />
       <span className="inline-flex items-center gap-[7px]">
         <InputIcon
           src="/img/input-icon-calendar.svg"
@@ -71,7 +70,7 @@ export function TaskMeta({
         />
         <span>{formatDueDate(dueDate)}</span>
       </span>
-      <span className="h-[17px] w-px bg-[var(--color-divider)]" aria-hidden="true" />
+      <span className="h-[17px] w-px bg-[var(--color-divider)]" />
       <span className="inline-flex items-center gap-[7px]">
         <Comment className="h-[15px] w-[15px]" />
         <span>{commentsCount}</span>
@@ -83,12 +82,12 @@ export function TaskMeta({
 // affiche une tâche de la liste
 function TaskCard({ task }: { task: TaskListTask }) {
   return (
-    <article className="grid min-h-[162px] grid-cols-[minmax(0,1fr)_160px] items-center gap-6 rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[24px] max-[700px]:grid-cols-1">
+    <article className="grid min-h-[162px] grid-cols-[minmax(0,1fr)_160px] items-center gap-6 rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[24px] max-[700px]:grid-cols-1 max-[520px]:px-5">
       <div>
         <h3 className="mb-[10px] text-[18px] font-semibold leading-tight text-[var(--color-ink)]">
           {task.title}
         </h3>
-        <p className="mb-[35px] text-[15px] leading-none text-[var(--color-muted)]">
+        <p className="mb-[35px] text-[15px] leading-tight text-[var(--color-muted)]">
           {task.description || "Aucune description"}
         </p>
         <TaskMeta
@@ -147,7 +146,7 @@ export function ListView({ tasks }: ListViewProps) {
   const filteredTasks = tasks.filter((task) => matchesSearch(task, searchText));
 
   return (
-    <section className="mt-[30px] rounded-lg border border-[var(--color-line)] bg-white px-[59px] py-[39px] max-[760px]:px-5">
+    <section className="mt-[30px] rounded-lg border border-[var(--color-line)] bg-white px-[59px] py-[39px] max-[760px]:px-5 max-[520px]:py-6">
       <div className="mb-[41px] flex items-center justify-between gap-8 max-[760px]:flex-col max-[760px]:items-start">
         <div>
           <h2 className="text-xl font-semibold leading-tight text-[var(--color-heading)]">
@@ -162,6 +161,7 @@ export function ListView({ tasks }: ListViewProps) {
           label="Rechercher une tâche"
           placeholder="Rechercher une tâche"
           type="text"
+          className="max-[760px]:max-w-none"
           variant="search"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}

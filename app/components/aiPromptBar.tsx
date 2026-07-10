@@ -28,10 +28,10 @@ export default function AiPromptBar({ disabled, onSubmit }: AiPromptBarProps) {
 
   return (
     <form
-      className="rounded-full bg-[#f9fafb] px-[32px] py-[18px] max-[640px]:px-5"
+      className="rounded-full bg-[#f9fafb] px-[32px] py-[18px] max-[640px]:px-5 max-[420px]:rounded-2xl"
       onSubmit={handleSubmit}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 max-[420px]:items-start">
         <input
           type="text"
           aria-label="Décrire les tâches à ajouter"
@@ -39,7 +39,7 @@ export default function AiPromptBar({ disabled, onSubmit }: AiPromptBarProps) {
           value={prompt}
           disabled={disabled}
           onChange={(event) => setPrompt(event.target.value)}
-          className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink)]"
+          className="min-w-0 flex-1 border-0 bg-transparent p-0 text-xs leading-tight text-[var(--color-ink)] outline-none placeholder:text-[var(--color-ink)]"
         />
         <button
           type="submit"
@@ -52,7 +52,6 @@ export default function AiPromptBar({ disabled, onSubmit }: AiPromptBarProps) {
             alt=""
             width={12}
             height={12}
-            aria-hidden="true"
             className="block h-3 w-3"
           />
         </button>

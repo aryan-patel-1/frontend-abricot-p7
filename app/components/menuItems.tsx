@@ -38,7 +38,6 @@ export function MenuItemIcon({
       alt=""
       width={iconWidth}
       height={iconHeight}
-      aria-hidden="true"
       className={`block flex-none ${imageClass}`}
     />
   );
@@ -57,7 +56,7 @@ export default function MenuItems({
   return (
     // affiche un lien du menu
     <Link
-      className={`inline-flex min-h-[78px] items-center gap-[18px] whitespace-nowrap rounded-lg px-[42px] text-base font-normal leading-none no-underline ${itemClass}`}
+      className={`inline-flex min-h-[78px] items-center gap-[18px] whitespace-nowrap rounded-lg px-[42px] text-base font-normal leading-none no-underline max-[520px]:min-h-14 max-[520px]:gap-2 max-[520px]:px-2 max-[520px]:text-sm ${itemClass}`}
       href={href}
     >
       <MenuItemIcon active={active} icon={icon} />
