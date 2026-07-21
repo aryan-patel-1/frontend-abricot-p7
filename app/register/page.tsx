@@ -120,9 +120,7 @@ export default function RegisterPage() {
         </p>
       </section>
 
-      <section
-        className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden"
-      >
+      <section className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden">
         <Image
           src="/img/signup-img.webp"
           alt=""

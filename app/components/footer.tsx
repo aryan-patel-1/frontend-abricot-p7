@@ -1,8 +1,10 @@
 import Image from "next/image";
 
+// centralise le pied de page partagé par les écrans authentifiés
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
-    // affiche le bas de page
     <footer className="flex h-[68px] w-full flex-none items-center justify-between bg-white py-0 pl-[30px] pr-[55px] max-sm:px-6">
       <Image
         src="/img/logo-noir.svg"
@@ -12,7 +14,7 @@ export default function Footer() {
         className="block h-auto w-[102px]"
       />
       <span className="text-base font-normal leading-none text-[var(--color-ink)]">
-        Abricot 2025
+        Abricot {currentYear}
       </span>
     </footer>
   );

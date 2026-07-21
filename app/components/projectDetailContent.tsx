@@ -11,7 +11,7 @@ import ProjectHeader from "./projectHeader";
 import ProjectTasksSection from "./projectTasksSection";
 import type { Project } from "../services/projectServices";
 
-// ce composant affiche les sections principales de la page détail projet
+// distribue l'état de la page entre ses trois sections d'affichage
 type ProjectDetailContentProps = {
   activeTaskView: ProjectTaskView;
   commenterInitials: string;

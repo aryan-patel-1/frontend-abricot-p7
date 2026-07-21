@@ -18,7 +18,6 @@ function ClickCounter() {
 
   return (
     <>
-      {/* simule un composant qui réagit à un clic utilisateur */}
       <Button onClick={() => setClickCount((count) => count + 1)}>
         Ajouter
       </Button>
@@ -33,7 +32,6 @@ function DisabledCounter() {
 
   return (
     <>
-      {/* vérifie qu'un bouton désactivé ne déclenche pas son action */}
       <Button disabled onClick={() => setClickCount((count) => count + 1)}>
         Ajouter
       </Button>
@@ -48,7 +46,6 @@ function DashboardViewSelector() {
 
   return (
     <>
-      {/* expose la vue active pour pouvoir vérifier le changement après clic */}
       <ViewTabs activeView={activeView} onViewChange={setActiveView} />
       <p>Vue active : {activeView}</p>
     </>
@@ -83,7 +80,6 @@ function EditableProjectCard() {
 
   return (
     <>
-      {/* garde le projet sélectionné visible pour vérifier l'action modifier */}
       <CardProject
         project={project}
         onEdit={(selectedProject) => setSelectedProjectName(selectedProject.name)}
@@ -94,49 +90,32 @@ function EditableProjectCard() {
 }
 
 test("met à jour le compteur après un clic sur le bouton", () => {
-  // arrange: affiche le composant à tester
   render(<ClickCounter />);
-
-  // act: simule le clic utilisateur sur le bouton visible
   fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
-
-  // assert: vérifie que l'interface affiche le nouvel état
   expect(screen.getByText("Compteur : 1")).toBeDefined();
 });
 
 test("ne met pas à jour le compteur après un clic sur un bouton désactivé", () => {
-  // arrange: affiche le même compteur avec un bouton disabled
   render(<DisabledCounter />);
-
-  // act: tente un clic même si le bouton est désactivé
   fireEvent.click(screen.getByRole("button", { name: "Ajouter" }));
-
-  // assert: le compteur doit rester à zéro
   expect(screen.getByText("Compteur : 0")).toBeDefined();
 });
 
 test("active la vue kanban après un clic sur l'onglet kanban", () => {
-  // arrange: affiche les onglets avec la vue liste active au départ
   render(<DashboardViewSelector />);
-
-  // act: clique sur l'onglet kanban comme un utilisateur
   fireEvent.click(screen.getByRole("button", { name: "Kanban" }));
-
-  // assert: le texte visible confirme que l'état local a changé
   expect(screen.getByText("Vue active : kanban")).toBeDefined();
-  // assert: aria-pressed confirme aussi l'état accessible du bouton
-  expect(screen.getByRole("button", { name: "Kanban" }).getAttribute("aria-pressed")).toBe("true");
+  expect(
+    screen.getByRole("button", { name: "Kanban" }).getAttribute("aria-pressed")
+  ).toBe("true");
 });
 
 test("sélectionne le projet après un clic sur son bouton modifier", () => {
-  // arrange: affiche une carte projet avec un handler onEdit contrôlé
   render(<EditableProjectCard />);
-
-  // act: clique sur le bouton modifier de la carte
   fireEvent.click(
     screen.getByRole("button", { name: "Modifier le projet Application mobile" })
   );
-
-  // assert: le nom affiché prouve que le bon projet a été transmis au handler
-  expect(screen.getByText("Projet sélectionné : Application mobile")).toBeDefined();
+  expect(
+    screen.getByText("Projet sélectionné : Application mobile")
+  ).toBeDefined();
 });

@@ -4,9 +4,9 @@ type LogoProps = {
   className?: string;
 };
 
+// garde les dimensions et le chargement du logo cohérents entre les pages
 export default function Logo({ className = "" }: LogoProps) {
   return (
-    // affiche le logo
     <Image
       src="/img/logo-orange.svg"
       alt="Abricot"

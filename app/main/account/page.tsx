@@ -5,7 +5,11 @@ import { useSyncExternalStore } from "react";
 
 import Button from "../../components/button";
 import TextInput from "../../components/input";
-import { getSavedAuthUser, logout, type AuthUser } from "../../services/authServices";
+import {
+  getSavedAuthUser,
+  logout,
+  type AuthUser,
+} from "../../services/authServices";
 
 // lit l'utilisateur sauvegardé seulement côté navigateur
 function readSavedUser() {
@@ -53,7 +57,6 @@ export default function AccountPage() {
   }
 
   return (
-    // affiche les informations du compte connecté
     <div className="mx-auto w-full max-w-[1408px] px-4 pb-[57px] pt-[48px] max-[900px]:px-5 max-[900px]:pt-10 max-[520px]:pb-10">
       <section className="w-full rounded-lg border border-[var(--color-line)] bg-white px-8 py-[42px] max-[900px]:px-5">
         <div className="mb-[43px]">

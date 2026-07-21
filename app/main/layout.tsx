@@ -10,6 +10,7 @@ type MainLayoutProps = {
   children: ReactNode;
 };
 
+// entoure les pages privées avec la navigation et le pied de page partagés
 function getLayout(children: ReactNode, pathname: string) {
   return (
     <div className="flex min-h-dvh flex-1 flex-col bg-[var(--color-surface-main)]">

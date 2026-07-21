@@ -125,22 +125,11 @@ export default function ProjectPage() {
 
   // recharge la liste quand l'id du projet dans l'url change
   useEffect(() => {
-    let isCurrentRequest = true;
-
     async function loadCurrentProjectTasks() {
-      if (!isCurrentRequest) {
-        return;
-      }
-
       await loadProjectTasks();
     }
 
     loadCurrentProjectTasks();
-
-    return () => {
-      // évite de modifier le state si la page change avant la réponse api
-      isCurrentRequest = false;
-    };
   }, [loadProjectTasks]);
 
   // recharge les informations du projet quand l'id dans l'url change

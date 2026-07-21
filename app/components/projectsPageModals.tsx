@@ -4,7 +4,7 @@ import type { AuthUser } from "../services/authServices";
 import type { Project } from "../services/projectServices";
 import ProjectFormModal from "./projectFormModal";
 
-// ce composant rassemble les modales de création et modification des projets
+// monte une seule modale projet selon l'action choisie par l'utilisateur
 type ProjectsPageModalsProps = {
   canAddProject: boolean;
   canDeleteProject: boolean;

@@ -5,6 +5,7 @@ type UserIconProps = {
   name?: string;
 };
 
+// limite l'avatar aux initiales du prénom et du nom
 function getInitials(name: string) {
   const nameParts = name.trim().split(/\s+/).filter(Boolean);
   const firstNameInitial = nameParts[0]?.[0] ?? "";
@@ -23,7 +24,6 @@ export default function UserIcon({
     : "bg-[var(--color-brand-soft)] text-[var(--color-ink)] hover:bg-[var(--color-brand-soft-hover)]";
 
   return (
-    // affiche les initiales
     <Link
       className={`inline-flex h-[65px] w-[65px] items-center justify-center rounded-full text-sm font-normal leading-none no-underline ${activeClass}`}
       href="/main/account"

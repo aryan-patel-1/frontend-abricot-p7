@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description: "La page demandée est introuvable.",
 };
 
+// propose une sortie adaptée selon la présence d'une session locale
 export default function NotFound() {
   return (
     <main className="flex min-h-dvh flex-col bg-[var(--color-surface-main)] px-5 py-10 text-[var(--color-ink)]">

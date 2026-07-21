@@ -4,7 +4,7 @@ import CardProject from "./cardProject";
 import Button from "./button";
 import type { Project } from "../services/projectServices";
 
-// ce composant affiche l'en-tête et la grille des projets
+// sépare le rendu des projets de la logique de chargement de la page
 type ProjectsPageContentProps = {
   isLoadingProjects: boolean;
   projects: Project[];

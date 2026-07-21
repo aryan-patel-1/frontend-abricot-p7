@@ -25,7 +25,7 @@ export default function TextInput({
     <label
       className={`${
         isSearch
-          ? "flex h-[63px] w-full max-w-[357px] items-center justify-between rounded-lg border border-[var(--color-line)] bg-white px-[31px] text-[15px] text-[var(--color-muted)]"
+          ? "flex h-[63px] w-full max-w-[357px] items-center justify-between rounded-lg border border-[var(--color-field-line)] bg-white px-[31px] text-[15px] text-[var(--color-muted)] transition-[border-color,box-shadow] duration-150 focus-within:border-[var(--color-brand)] focus-within:shadow-[var(--shadow-input-focus)]"
           : "flex w-full flex-col gap-[7px]"
       } ${className}`}
       htmlFor={id}

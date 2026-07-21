@@ -1,5 +1,6 @@
 import type { TaskStatus } from "./taskStatusBadge";
 
+// décrit les données déjà adaptées pour l'affichage du détail d'un projet
 export type ProjectMember = {
   initials: string;
   name: string;

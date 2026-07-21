@@ -40,11 +40,8 @@ export default function Menu({ pathname }: MenuProps) {
   );
 
   return (
-    // affiche le menu du haut
     <header className="grid h-[94px] w-full flex-none grid-cols-[1fr_auto_1fr] items-center bg-white px-6 shadow-[var(--shadow-menu)] max-[900px]:h-auto max-[900px]:min-h-[94px] max-[900px]:grid-cols-[1fr_auto] max-[900px]:gap-6 max-[900px]:py-[18px] max-[520px]:px-4">
-      <div
-        className="inline-flex items-center justify-self-start"
-      >
+      <div className="inline-flex items-center justify-self-start">
         <Image
           src="/img/logo-orange.svg"
           alt="Abricot"

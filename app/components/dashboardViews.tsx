@@ -60,7 +60,7 @@ export function DashboardHeader({
 
 function KanbanTaskCard({ task }: { task: TaskListTask }) {
   return (
-    <article className="min-h-[229px] rounded-lg border border-[var(--color-line)] bg-white px-6 py-[30px] max-[520px]:px-5">
+    <article className="min-h-[229px] rounded-lg border border-[var(--color-field-line)] bg-white px-6 py-[30px] max-[520px]:px-5">
       <div className="mb-[10px] flex items-start justify-between gap-4">
         <h3 className="text-[18px] font-semibold leading-tight text-[var(--color-ink)]">
           {task.title}

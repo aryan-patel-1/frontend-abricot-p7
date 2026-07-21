@@ -54,7 +54,9 @@ export default function CreateTaskModal({
     // ajoute ou retire un collaborateur sans perdre les autres sélections
     setSelectedAssigneeIds((currentAssigneeIds) =>
       currentAssigneeIds.includes(assigneeId)
-        ? currentAssigneeIds.filter((currentAssigneeId) => currentAssigneeId !== assigneeId)
+        ? currentAssigneeIds.filter(
+            (currentAssigneeId) => currentAssigneeId !== assigneeId
+          )
         : [...currentAssigneeIds, assigneeId]
     );
   }

@@ -1,6 +1,7 @@
 import type { DashboardTaskStatus } from "../services/dashboardServices";
 import type { TaskStatus } from "./taskStatusBadge";
 
+// regroupe les formes de données communes aux modales de tâche
 export type TaskAssigneeOption = {
   id: string;
   name: string;

@@ -15,6 +15,7 @@ import {
   updateProject,
 } from "../../services/projectServices";
 
+// extrait les membres déjà associés pour initialiser la modale de modification
 function getProjectContributorIds(project: Project | null) {
   return project?.members.map((member) => member.user.id) ?? [];
 }

@@ -1,5 +1,6 @@
 import type { ProjectMember } from "./projectDetailTypes";
 
+// affiche un membre avec ses initiales et son rôle éventuel
 export default function ProjectMemberBadge({
   initials,
   name,

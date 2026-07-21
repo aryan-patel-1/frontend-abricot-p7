@@ -1,3 +1,4 @@
+/* harmonise le modèle de boîte avant d'appliquer les styles des composants */
 *,
 *::before,
 *::after {

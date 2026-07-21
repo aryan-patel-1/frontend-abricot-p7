@@ -6,7 +6,7 @@ import type { AuthUser } from "../services/authServices";
 import type { Project } from "../services/projectServices";
 import Button from "./button";
 
-// ce composant affiche la modale utilisée pour créer ou modifier un projet
+// partage le même formulaire contrôlé entre la création et la modification
 type ProjectFormModalProps = {
   canDeleteProject?: boolean;
   canSubmit: boolean;

@@ -6,6 +6,7 @@ type AppLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string;
 };
 
+// réutilise le routage Next.js avec le style des liens secondaires
 export default function AppLink({
   className = "",
   children,
@@ -13,7 +14,6 @@ export default function AppLink({
   ...props
 }: AppLinkProps) {
   return (
-    // affiche un lien
     <NextLink
       className={`text-sm font-normal leading-[1.2] text-[var(--color-brand)] underline underline-offset-2 hover:text-[var(--color-brand-hover)] ${className}`}
       href={href}

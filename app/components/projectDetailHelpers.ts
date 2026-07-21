@@ -3,7 +3,11 @@ import type {
   ProjectTask,
 } from "../services/dashboardServices";
 import type { Project } from "../services/projectServices";
-import type { ProjectDisplayTask, ProjectMember, ProjectTaskStatusFilter } from "./projectDetailTypes";
+import type {
+  ProjectDisplayTask,
+  ProjectMember,
+  ProjectTaskStatusFilter,
+} from "./projectDetailTypes";
 import type { TaskAssigneeOption } from "./taskModalTypes";
 import type { TaskStatus } from "./taskStatusBadge";
 
@@ -13,11 +17,8 @@ const taskStatusByApiStatus: Record<DashboardTaskStatus, TaskStatus> = {
   DONE: "done",
 };
 
-export const fallbackProjectMembers: ProjectMember[] = [
-  { initials: "AD", name: "Anne Dupont", role: "Propriétaire" },
-  { initials: "BD", name: "Bertrand Dupont" },
-  { initials: "AD", name: "Anne Dupont" },
-];
+// évite d'afficher de faux membres avant la réponse de l'api
+export const fallbackProjectMembers: ProjectMember[] = [];
 
 export const statusFilterOptions: {
   label: string;
@@ -41,8 +42,8 @@ export function getInitials(name: string) {
 }
 
 function getCommentCreatedAt(createdAt?: string) {
-  // garantit une date affichable quand le mock ou l'api ne fournit pas createdAt
-  return createdAt ?? new Date().toISOString();
+  // laisse la date vide plutôt que d'inventer l'heure de chargement
+  return createdAt ?? null;
 }
 
 export function toProjectDisplayTask(task: ProjectTask): ProjectDisplayTask {
@@ -63,7 +64,8 @@ export function toProjectDisplayTask(task: ProjectTask): ProjectDisplayTask {
         };
       }) ?? [],
     comments: task.comments.map((comment) => {
-      const authorName = comment.author?.name || comment.author?.email || "Utilisateur";
+      const authorName =
+        comment.author?.name || comment.author?.email || "Utilisateur";
 
       return {
         id: comment.id,
@@ -99,7 +101,9 @@ export function getProjectMembers(project: Project | null): ProjectMember[] {
   ];
 }
 
-export function getTaskAssigneeOptions(project: Project | null): TaskAssigneeOption[] {
+export function getTaskAssigneeOptions(
+  project: Project | null
+): TaskAssigneeOption[] {
   if (!project) {
     return [];
   }

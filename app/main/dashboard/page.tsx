@@ -5,10 +5,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import CreateProjectModal from "../../components/createProjectModal";
 import { type DashboardView, ViewTabs } from "../../components/chips";
 import { DashboardHeader, KanbanView } from "../../components/dashboardViews";
-import {
-  ListView,
-  type TaskListTask,
-} from "../../components/taskList";
+import { ListView, type TaskListTask } from "../../components/taskList";
 import {
   getAssignedTasks,
   type DashboardTask,
@@ -85,6 +82,8 @@ export default function DashboardPage() {
   const [activeView, setActiveView] = useState<DashboardView>("list");
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [tasks, setTasks] = useState<TaskListTask[]>([]);
+  const [isLoadingTasks, setIsLoadingTasks] = useState(true);
+  const [tasksError, setTasksError] = useState("");
   const user = useSyncExternalStore(
     watchSavedUserChanges,
     readSavedUser,
@@ -92,12 +91,37 @@ export default function DashboardPage() {
   );
 
   useEffect(() => {
+    let isCurrentRequest = true;
+
     async function loadTasks() {
-      const data = await getAssignedTasks();
-      setTasks(data.tasks.map(toTask));
+      try {
+        setTasksError("");
+        const data = await getAssignedTasks();
+
+        if (isCurrentRequest) {
+          setTasks(data.tasks.map(toTask));
+        }
+      } catch (error) {
+        if (isCurrentRequest) {
+          setTasksError(
+            error instanceof Error
+              ? error.message
+              : "Impossible de charger les tâches."
+          );
+        }
+      } finally {
+        if (isCurrentRequest) {
+          setIsLoadingTasks(false);
+        }
+      }
     }
 
     loadTasks();
+
+    return () => {
+      // ignore la réponse si l'utilisateur quitte le dashboard avant sa réception
+      isCurrentRequest = false;
+    };
   }, []);
 
   return (
@@ -109,11 +133,26 @@ export default function DashboardPage() {
       <div className="mt-[60px]">
         <ViewTabs activeView={activeView} onViewChange={setActiveView} />
       </div>
-      {activeView === "list" ? (
-        <ListView tasks={tasks} />
-      ) : (
-        <KanbanView tasks={tasks} />
-      )}
+      {isLoadingTasks ? (
+        <p className="mt-[30px] text-base text-[var(--color-muted)]">
+          Chargement des tâches...
+        </p>
+      ) : null}
+      {!isLoadingTasks && tasksError ? (
+        <p
+          className="mt-[30px] rounded border border-[var(--color-error-border)] bg-[var(--color-error-bg)] px-5 py-4 text-sm text-[var(--color-error-text)]"
+          role="alert"
+        >
+          {tasksError}
+        </p>
+      ) : null}
+      {!isLoadingTasks && !tasksError ? (
+        activeView === "list" ? (
+          <ListView tasks={tasks} />
+        ) : (
+          <KanbanView tasks={tasks} />
+        )
+      ) : null}
       {isCreateProjectModalOpen ? (
         <CreateProjectModal onClose={() => setIsCreateProjectModalOpen(false)} />
       ) : null}

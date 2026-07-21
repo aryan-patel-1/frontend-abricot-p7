@@ -4,6 +4,7 @@ type CommentProps = {
   className?: string;
 };
 
+// fournit l'icône décorative utilisée avec le nombre de commentaires
 export default function Comment({ className = "" }: CommentProps) {
   return (
     <Image

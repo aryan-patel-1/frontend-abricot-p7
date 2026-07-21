@@ -46,7 +46,7 @@ function formatDueDate(dueDate: string | null) {
   }).format(new Date(dueDate));
 }
 
-// affiche les informations secondaires d'une tâche
+// regroupe les informations secondaires partagées par les deux vues
 export function TaskMeta({
   commentsCount,
   dueDate,
@@ -79,10 +79,9 @@ export function TaskMeta({
   );
 }
 
-// affiche une tâche de la liste
 function TaskCard({ task }: { task: TaskListTask }) {
   return (
-    <article className="grid min-h-[162px] grid-cols-[minmax(0,1fr)_160px] items-center gap-6 rounded-lg border border-[var(--color-line)] bg-white px-[39px] py-[24px] max-[700px]:grid-cols-1 max-[520px]:px-5">
+    <article className="grid min-h-[162px] grid-cols-[minmax(0,1fr)_160px] items-center gap-6 rounded-lg border border-[var(--color-field-line)] bg-white px-[39px] py-[24px] max-[700px]:grid-cols-1 max-[520px]:px-5">
       <div>
         <h3 className="mb-[10px] text-[18px] font-semibold leading-tight text-[var(--color-ink)]">
           {task.title}
@@ -124,25 +123,21 @@ type ListViewProps = {
 };
 
 function matchesSearch(task: TaskListTask, searchText: string) {
-  // prépare le texte saisi pour comparer sans tenir compte des majuscules
   const normalizedSearch = searchText.trim().toLowerCase();
 
-  // garde toutes les tâches visibles tant que la recherche est trop courte
+  // évite de masquer la liste pour une saisie encore trop courte
   if (normalizedSearch.length < 3) {
     return true;
   }
 
-  // cherche dans les informations principales visibles sur une tâche
   return [task.title, task.description ?? "", task.projectName].some((value) =>
     value.toLowerCase().includes(normalizedSearch)
   );
 }
 
-// affiche la section des tâches
 export function ListView({ tasks }: ListViewProps) {
-  // garde en mémoire le texte tapé dans la barre de recherche
   const [searchText, setSearchText] = useState("");
-  // recalcule la liste affichée à chaque changement de recherche
+  // filtre localement les tâches déjà chargées sans rappeler l'api
   const filteredTasks = tasks.filter((task) => matchesSearch(task, searchText));
 
   return (

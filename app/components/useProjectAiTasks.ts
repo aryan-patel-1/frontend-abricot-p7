@@ -8,7 +8,7 @@ import type { AiGeneratedTask } from "./taskModalTypes";
 
 const initialAiGeneratedTasks: AiGeneratedTask[] = [];
 
-// ce hook garde la génération ia et l'ajout des tâches au projet
+// centralise la prévisualisation IA puis la création des tâches validées
 export default function useProjectAiTasks(
   projectId: string,
   onProjectTasksChanged: () => Promise<void>

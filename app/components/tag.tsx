@@ -5,6 +5,7 @@ type TagProps = {
   status: TagStatus;
 };
 
+// associe chaque statut d'affichage à son libellé et à ses couleurs
 const tagStyles: Record<
   TagStatus,
   {

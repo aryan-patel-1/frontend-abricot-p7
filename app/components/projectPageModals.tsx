@@ -6,7 +6,7 @@ import CreateTaskModal from "./createTaskModal";
 import EditTaskModal from "./editTaskModal";
 import type { AiGeneratedTask, TaskAssigneeOption } from "./taskModalTypes";
 
-// ce composant regroupe les modales de la page détail projet pour alléger la page
+// monte uniquement les modales nécessaires à l'état courant du projet
 type ProjectPageModalsProps = {
   addGeneratedTasksError: string;
   aiGenerationError: string;

@@ -1,5 +1,6 @@
 export type TaskStatus = "todo" | "progress" | "done";
 
+// partage les libellés et couleurs de statut entre les modales et les cartes
 const statusStyles: Record<
   TaskStatus,
   {

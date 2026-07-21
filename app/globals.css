@@ -31,6 +31,27 @@
   --shadow-input-focus: 0 0 0 3px rgba(211, 89, 11, 0.14);
 }
 
+/* conserve les contours quand la validation W3C retire les propriétés Tailwind */
+.border {
+  border-style: solid;
+}
+
+.border-t {
+  border-top-style: solid;
+}
+
+.border-r {
+  border-right-style: solid;
+}
+
+.border-b {
+  border-bottom-style: solid;
+}
+
+.border-l {
+  border-left-style: solid;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

@@ -7,11 +7,11 @@ import type { AuthUser } from "../services/authServices";
 import { isUsingMockData } from "../services/dataProvider";
 import { searchUsers } from "../services/projectServices";
 
-// ce hook prépare la liste des contributeurs disponibles pour les modales projet
 function isMockAccount(user: AuthUser | null) {
   return mockUsers.some((mockUser) => mockUser.id === user?.id);
 }
 
+// choisit la source adaptée puis prépare les contributeurs des modales projet
 export default function useProjectContributors(
   user: AuthUser | null,
   shouldLoadContributors: boolean

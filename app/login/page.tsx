@@ -27,7 +27,7 @@ export default function LoginPage() {
 
     try {
       // tente la connexion avec les champs du formulaire
-      const session = await login({ email, password });
+      const session = await login({ email: email.trim(), password });
       // sauvegarde la session reçue avant de changer de page
       saveAuthSession(session);
       router.push("/main/dashboard");
@@ -109,9 +109,7 @@ export default function LoginPage() {
         </p>
       </section>
 
-      <section
-        className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden"
-      >
+      <section className="relative min-h-dvh flex-auto overflow-hidden max-[900px]:hidden">
         <Image
           src="/img/login-img.webp"
           alt=""

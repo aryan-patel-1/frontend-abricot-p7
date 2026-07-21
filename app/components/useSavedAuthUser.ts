@@ -4,7 +4,6 @@ import { useSyncExternalStore } from "react";
 
 import { getSavedAuthUser, type AuthUser } from "../services/authServices";
 
-// ce hook expose l'utilisateur connecté sauvegardé dans le navigateur
 function readSavedUser() {
   return getSavedAuthUser();
 }
@@ -23,6 +22,7 @@ function watchSavedUserChanges(onUserChange: () => void) {
   return () => window.removeEventListener("storage", onUserChange);
 }
 
+// partage une lecture stable de l'utilisateur entre les composants clients
 export default function useSavedAuthUser(): AuthUser | null {
   return useSyncExternalStore(
     watchSavedUserChanges,

@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import useSavedAuthUser from "./useSavedAuthUser";
 
-// ce composant bloque l'accès au tableau de bord si aucune session n'est trouvée
+// adapte l'action de retour selon la présence d'une session locale
 export default function NotFoundActions() {
   const user = useSavedAuthUser();
   const dashboardClassName =

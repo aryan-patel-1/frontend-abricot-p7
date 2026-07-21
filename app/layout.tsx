@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import "./reset.css";
 
+// définit les métadonnées communes à toutes les routes de l'application
 export const metadata: Metadata = {
   title: "Abricot",
   description: "Abricot",
@@ -17,9 +18,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="fr" className="h-full antialiased">
-      <body className="min-h-full flex flex-col">
-        {children}
-      </body>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

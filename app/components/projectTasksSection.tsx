@@ -50,8 +50,10 @@ export default function ProjectTasksSection({
   tasksError,
 }: ProjectTasksSectionProps) {
   const selectedStatusLabel =
-    statusFilterOptions.find((option) => option.value === selectedStatus)?.label ??
-    "Statut";
+    selectedStatus === "all"
+      ? "Statut"
+      : statusFilterOptions.find((option) => option.value === selectedStatus)
+          ?.label ?? "Statut";
 
   return (
     <section className="mt-[33px] rounded-lg border border-[var(--color-line)] bg-white px-8 py-[40px] max-[760px]:px-5 max-[520px]:py-6">
@@ -107,7 +109,7 @@ export default function ProjectTasksSection({
               type="button"
               aria-controls="status-filter-options"
               aria-expanded={isStatusOpen}
-              className="inline-flex h-[61px] min-w-[149px] cursor-pointer items-center justify-between rounded-lg border border-[var(--color-line)] bg-white px-[31px] text-sm leading-none text-[var(--color-muted)] max-[640px]:w-full"
+              className="inline-flex h-[61px] min-w-[149px] cursor-pointer items-center justify-between rounded-lg border border-[var(--color-field-line)] bg-white px-[31px] text-sm leading-none text-[var(--color-muted)] outline-none transition-[border-color,box-shadow] duration-150 focus:border-[var(--color-brand)] focus:shadow-[var(--shadow-input-focus)] max-[640px]:w-full"
               onClick={() => onStatusOpenChange(!isStatusOpen)}
             >
               {selectedStatusLabel}

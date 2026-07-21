@@ -97,7 +97,9 @@ export default function EditTaskModal({
     // ajoute ou retire un collaborateur sans perdre les autres sélections
     setAssigneeIds((currentAssigneeIds) =>
       currentAssigneeIds.includes(assigneeId)
-        ? currentAssigneeIds.filter((currentAssigneeId) => currentAssigneeId !== assigneeId)
+        ? currentAssigneeIds.filter(
+            (currentAssigneeId) => currentAssigneeId !== assigneeId
+          )
         : [...currentAssigneeIds, assigneeId]
     );
   }
