@@ -1,5 +1,5 @@
 import { ApiError, apiRequest } from "./api";
-import { mockUsers, mockUser } from "../mocks/mocksData";
+import { mockUsers } from "../mocks/mocksData";
 import { getData, isUsingMockData } from "./dataProvider";
 
 export type AuthUser = {
@@ -101,10 +101,6 @@ export function logout() {
 
 // relit l'utilisateur sauvegardé après la connexion
 export function getSavedAuthUser() {
-  if (isUsingMockData()) {
-    return mockUser;
-  }
-
   if (typeof window === "undefined") {
     return null;
   }
@@ -129,4 +125,15 @@ export function getSavedAuthUser() {
     lastSavedUser = null;
     return null;
   }
+}
+
+// vérifie que le navigateur contient les deux éléments nécessaires à la session
+export function hasSavedAuthSession() {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  const token = localStorage.getItem("abricot_token");
+
+  return Boolean(token && getSavedAuthUser());
 }

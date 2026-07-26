@@ -16,6 +16,9 @@ type ApiErrorData = {
   errors?: ApiValidationError[];
 };
 
+export const GENERIC_ERROR_MESSAGE =
+  "Une erreur est survenue. Veuillez réessayer.";
+
 // erreur personnalisée pour garder les détails utiles côté frontend
 export class ApiError extends Error {
   status: number;
@@ -71,20 +74,6 @@ function getValidationErrors(payload: ApiResponse<unknown>) {
   );
 }
 
-// choisit le message le plus clair à afficher à l'utilisateur
-function getErrorMessage(
-  payload: ApiResponse<unknown>,
-  fallback: string,
-  validationErrors: ApiValidationError[]
-) {
-  const validationMessage = validationErrors
-    .map((error) => error.message.trim())
-    .filter(Boolean)
-    .join(" ");
-
-  return validationMessage || payload.message || fallback;
-}
-
 // centralise les appels http vers l'api et renvoie seulement les données utiles
 export async function apiRequest<T>(
   path: string,
@@ -110,12 +99,8 @@ export async function apiRequest<T>(
     // signale au développeur que le backend ne répond pas
     console.error("L'API n'est pas connectée.", error);
 
-    // affiche un message simple à l'utilisateur
-    throw new ApiError(
-      "Impossible de se connecter au serveur, veuillez réessayer ultérieurement.",
-      0,
-      "NETWORK_ERROR"
-    );
+    // garde l'origine technique hors du message destiné à l'utilisateur
+    throw new ApiError(GENERIC_ERROR_MESSAGE, 0, "NETWORK_ERROR");
   }
 
   let payload: ApiResponse<T> | null = null;
@@ -125,7 +110,7 @@ export async function apiRequest<T>(
     payload = (await response.json()) as ApiResponse<T>;
   } catch {
     throw new ApiError(
-      "Réponse invalide reçue depuis l'API.",
+      GENERIC_ERROR_MESSAGE,
       response.status,
       "INVALID_RESPONSE"
     );
@@ -133,15 +118,10 @@ export async function apiRequest<T>(
 
   if (!response.ok || !payload.success) {
     const validationErrors = getValidationErrors(payload);
-    const errorMessage = getErrorMessage(
-      payload,
-      "Une erreur est survenue.",
-      validationErrors
-    );
 
-    // garde le message métier et le statut http pour la page qui appelle l'api
+    // conserve les détails pour le code sans afficher le message brut reçu
     throw new ApiError(
-      errorMessage,
+      GENERIC_ERROR_MESSAGE,
       response.status,
       payload.error,
       validationErrors
@@ -151,7 +131,7 @@ export async function apiRequest<T>(
   if (payload.data === undefined) {
     // protège les pages contre une réponse réussie mais incomplète
     throw new ApiError(
-      "La réponse de l'API ne contient pas les données attendues.",
+      GENERIC_ERROR_MESSAGE,
       response.status,
       "MISSING_DATA"
     );

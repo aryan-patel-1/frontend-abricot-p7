@@ -66,11 +66,8 @@ export default function ProjectsPage() {
         const data = await getProjects();
         setProjects(data.projects);
       } catch (error) {
-        setProjectsError(
-          error instanceof Error
-            ? error.message
-            : "Impossible de charger les projets."
-        );
+        console.error("Impossible de charger les projets.", error);
+        setProjectsError("Impossible de charger les projets. Veuillez réessayer.");
       } finally {
         setIsLoadingProjects(false);
       }
@@ -154,11 +151,8 @@ export default function ProjectsPage() {
       resetCreateForm();
       closeCreateModal();
     } catch (error) {
-      setFormError(
-        error instanceof Error
-          ? error.message
-          : "Impossible de créer le projet."
-      );
+      console.error("Impossible de créer le projet.", error);
+      setFormError("Impossible de créer le projet. Veuillez réessayer.");
     } finally {
       setIsCreatingProject(false);
     }
@@ -196,11 +190,8 @@ export default function ProjectsPage() {
       setProjectToEdit(data.project);
       closeEditModal();
     } catch (error) {
-      setEditFormError(
-        error instanceof Error
-          ? error.message
-          : "Impossible de modifier le projet."
-      );
+      console.error("Impossible de modifier le projet.", error);
+      setEditFormError("Impossible de modifier le projet. Veuillez réessayer.");
     } finally {
       setIsUpdatingProject(false);
     }
@@ -229,11 +220,8 @@ export default function ProjectsPage() {
       );
       closeEditModal();
     } catch (error) {
-      setEditFormError(
-        error instanceof Error
-          ? error.message
-          : "Impossible de supprimer le projet."
-      );
+      console.error("Impossible de supprimer le projet.", error);
+      setEditFormError("Impossible de supprimer le projet. Veuillez réessayer.");
     } finally {
       setIsDeletingProject(false);
     }

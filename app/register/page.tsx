@@ -9,7 +9,7 @@ import Button from "../components/button";
 import TextInput from "../components/input";
 import AppLink from "../components/link";
 import Logo from "../components/logo";
-import { ApiError } from "../services/api";
+import { GENERIC_ERROR_MESSAGE } from "../services/api";
 import { register, saveAuthSession } from "../services/authServices";
 
 export default function RegisterPage() {
@@ -36,13 +36,10 @@ export default function RegisterPage() {
       // sauvegarde la session reçue avant de changer de page
       saveAuthSession(session);
       router.push("/main/dashboard");
-    } catch (err) {
-      // affiche le message clair renvoyé par le service api
-      if (err instanceof ApiError) {
-        setError(err.message);
-      } else {
-        setError("Une erreur inattendue est survenue.");
-      }
+    } catch (error) {
+      // ne transmet pas les détails techniques à l'utilisateur
+      console.error("L'inscription a échoué.", error);
+      setError(GENERIC_ERROR_MESSAGE);
     } finally {
       setIsSubmitting(false);
     }

@@ -103,11 +103,8 @@ export default function DashboardPage() {
         }
       } catch (error) {
         if (isCurrentRequest) {
-          setTasksError(
-            error instanceof Error
-              ? error.message
-              : "Impossible de charger les tâches."
-          );
+          console.error("Impossible de charger les tâches.", error);
+          setTasksError("Impossible de charger les tâches. Veuillez réessayer.");
         }
       } finally {
         if (isCurrentRequest) {

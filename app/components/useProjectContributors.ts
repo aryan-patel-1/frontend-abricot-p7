@@ -38,10 +38,9 @@ export default function useProjectContributors(
         );
       } catch (error) {
         setApiContributors([]);
+        console.error("Impossible de charger les contributeurs.", error);
         setContributorsError(
-          error instanceof Error
-            ? error.message
-            : "Impossible de charger les contributeurs."
+          "Impossible de charger les contributeurs. Veuillez réessayer."
         );
       }
     }

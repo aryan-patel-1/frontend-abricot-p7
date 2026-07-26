@@ -36,10 +36,9 @@ export default function useProjectAiTasks(
       setGeneratedTasks(tasksGeneratedByAi);
       return true;
     } catch (error) {
+      console.error("Impossible de générer les tâches.", error);
       setAiGenerationError(
-        error instanceof Error
-          ? error.message
-          : "Impossible de générer les tâches."
+        "Impossible de générer les tâches. Veuillez réessayer."
       );
       return false;
     } finally {

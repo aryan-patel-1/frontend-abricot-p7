@@ -9,7 +9,7 @@ import Button from "../components/button";
 import TextInput from "../components/input";
 import AppLink from "../components/link";
 import Logo from "../components/logo";
-import { ApiError } from "../services/api";
+import { ApiError, GENERIC_ERROR_MESSAGE } from "../services/api";
 import { login, saveAuthSession } from "../services/authServices";
 
 export default function LoginPage() {
@@ -32,11 +32,12 @@ export default function LoginPage() {
       saveAuthSession(session);
       router.push("/main/dashboard");
     } catch (err) {
-      // affiche le message clair renvoyé par le service api
-      if (err instanceof ApiError) {
-        setError(err.message);
+      // garde un retour précis uniquement pour des identifiants refusés
+      if (err instanceof ApiError && err.status === 401) {
+        setError("Email ou mot de passe incorrect.");
       } else {
-        setError("Une erreur inattendue est survenue.");
+        console.error("La connexion a échoué.", err);
+        setError(GENERIC_ERROR_MESSAGE);
       }
     } finally {
       setIsSubmitting(false);
